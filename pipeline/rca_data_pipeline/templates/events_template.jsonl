@@ -1,0 +1,4 @@
+{"ts":"2026-03-25T11:00:00+07:00","event":"run_started","run_id":"ob_lat_pay_med_001"}
+{"ts":"2026-03-25T11:01:00+07:00","event":"fault_started","fault_family":"latency","fault_type":"latency-injection","fault_service":"paymentservice","fault_role":"payment","severity":"medium"}
+{"ts":"2026-03-25T11:04:00+07:00","event":"fault_ended","fault_family":"latency","fault_type":"latency-injection","fault_service":"paymentservice","fault_role":"payment","severity":"medium"}
+{"ts":"2026-03-25T11:05:10+07:00","event":"run_finished","run_id":"ob_lat_pay_med_001"}

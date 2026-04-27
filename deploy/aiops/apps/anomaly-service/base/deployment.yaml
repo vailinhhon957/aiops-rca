@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-service
+  labels:
+    app.kubernetes.io/name: anomaly-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: anomaly-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: anomaly-service
+    spec:
+      containers:
+        - name: anomaly-service
+          image: ghcr.io/example/aiops-anomaly-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: AIOPS_ANOMALY_MODEL_ROOT
+              value: /app/models
+            - name: AIOPS_ANOMALY_MODEL_STAGE
+              value: production
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi

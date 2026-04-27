@@ -89,18 +89,19 @@ func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
 		ps[i] = productView{p, price}
 	}
 
-	// Set ENV_PLATFORM (default to local if not set; use env var if set; otherwise detect GCP, which overrides env)_
-	var env = os.Getenv("ENV_PLATFORM")
-	// Only override from env variable if set + valid env
-	if env == "" || stringinSlice(validEnvs, env) == false {
+	// Respect an explicitly configured platform first. Only probe for GCP
+	// metadata when ENV_PLATFORM is not set.
+	env := strings.ToLower(strings.TrimSpace(os.Getenv("ENV_PLATFORM")))
+	if env == "" {
+		env = "local"
+		addrs, err := net.LookupHost("metadata.google.internal.")
+		if err == nil && len(addrs) > 0 {
+			log.Debugf("Detected Google metadata server: %v, setting ENV_PLATFORM to GCP.", addrs)
+			env = "gcp"
+		}
+	} else if !stringinSlice(validEnvs, env) {
 		fmt.Println("env platform is either empty or invalid")
 		env = "local"
-	}
-	// Autodetect GCP
-	addrs, err := net.LookupHost("metadata.google.internal.")
-	if err == nil && len(addrs) >= 0 {
-		log.Debugf("Detected Google metadata server: %v, setting ENV_PLATFORM to GCP.", addrs)
-		env = "gcp"
 	}
 
 	log.Debugf("ENV_PLATFORM is: %s", env)

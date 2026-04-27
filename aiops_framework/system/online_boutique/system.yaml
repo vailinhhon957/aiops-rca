@@ -1,0 +1,16 @@
+system_id: online-boutique
+system_family: ecommerce
+display_name: Online Boutique
+
+entry_services:
+  - frontend
+
+trace_adapter: jaeger
+metric_adapter: prometheus
+log_adapter: loki
+
+service_catalog: service_catalog.json
+
+default_artifacts:
+  anomaly_data_root: D:/HOCTAP/2025-2026/HK2/DACN/microservices-demo/data_anomaly_balanced_v3
+  rca_data_root: D:/HOCTAP/2025-2026/HK2/DACN/microservices-demo/data_rca_balanced_v3

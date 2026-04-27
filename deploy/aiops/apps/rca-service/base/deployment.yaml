@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rca-service
+  labels:
+    app.kubernetes.io/name: rca-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rca-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rca-service
+    spec:
+      containers:
+        - name: rca-service
+          image: ghcr.io/example/aiops-rca-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8001
+              name: http
+          env:
+            - name: AIOPS_RCA_MODEL_ROOT
+              value: /app/models
+            - name: AIOPS_RCA_MODEL_STAGE
+              value: production
+            - name: AIOPS_RCA_DEVICE
+              value: cpu
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi

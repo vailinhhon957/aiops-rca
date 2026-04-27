@@ -1,0 +1,11 @@
+positive_source_rows=108
+negative_source_rows=32
+normal_negative_rows=12
+hard_negative_rows=20
+anomaly_balanced_rows=64
+anomaly_counts={'hard-negative': 20, 'normal': 12, 'positive': 32}
+rca_balanced_rows=84
+rca_min_per_root=12
+rca_counts={'cartservice': 12, 'checkoutservice': 12, 'currencyservice': 12, 'frontend': 12, 'paymentservice': 12, 'productcatalogservice': 12, 'recommendationservice': 12}
+anomaly_manifest=D:\HOCTAP\2025-2026\HK2\DACN\microservices-demo\pipeline\rca_data_pipeline\templates\balanced_manifests\anomaly_balanced_metadata.csv
+rca_manifest=D:\HOCTAP\2025-2026\HK2\DACN\microservices-demo\pipeline\rca_data_pipeline\templates\balanced_manifests\rca_balanced_metadata.csv

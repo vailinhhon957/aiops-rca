@@ -1,0 +1,59 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: aiops-prod
+resources:
+  - namespace.yaml
+  - ../../apps/anomaly-service/base
+  - ../../apps/rca-service/base
+  - ../../apps/orchestrator/base
+  - ../../apps/dashboard/base
+  - ingress.yaml
+images:
+  - name: ghcr.io/example/aiops-anomaly-service
+    newName: ghcr.io/example/aiops-anomaly-service
+    newTag: stable
+  - name: ghcr.io/example/aiops-rca-service
+    newName: ghcr.io/example/aiops-rca-service
+    newTag: stable
+  - name: ghcr.io/example/aiops-orchestrator
+    newName: ghcr.io/example/aiops-orchestrator
+    newTag: stable
+  - name: ghcr.io/example/aiops-dashboard
+    newName: ghcr.io/example/aiops-dashboard
+    newTag: stable
+patches:
+  - target:
+      kind: Deployment
+      name: anomaly-service
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target:
+      kind: Deployment
+      name: rca-service
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target:
+      kind: Deployment
+      name: aiops-orchestrator
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target:
+      kind: Deployment
+      name: aiops-dashboard
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target:
+      kind: Deployment
+      name: aiops-dashboard
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/3/value
+        value: real

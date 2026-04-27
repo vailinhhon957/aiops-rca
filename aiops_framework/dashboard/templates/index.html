@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIOps RCA Dashboard</title>
+  <link rel="stylesheet" href="/static/dashboard.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">&#9670;</span>
+        <span class="logo-text">AIOps</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" title="Dashboard">
+          <span class="nav-icon">&#9783;</span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" title="Health">
+          <span class="nav-icon">&#10003;</span>
+          <span class="nav-label">Health</span>
+        </a>
+        <a href="#" class="nav-item" title="Incidents">
+          <span class="nav-icon">&#9888;</span>
+          <span class="nav-label">Incidents</span>
+        </a>
+        <a href="#" class="nav-item" title="Metadata">
+          <span class="nav-icon">&#9776;</span>
+          <span class="nav-label">Metadata</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="sidebar-ver">v1.0.0</span>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="main-content">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="topbar-title">Online RCA Dashboard</span>
+          <span class="topbar-sub">AIOps Runtime Demo &mdash; Microservices</span>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-stat">
+            <span class="ts-label">Anomaly</span>
+            <span class="ts-badge ok-dot" id="topbarAnomaly">&#8226; OK</span>
+          </div>
+          <div class="topbar-stat">
+            <span class="ts-label">RCA</span>
+            <span class="ts-badge ok-dot" id="topbarRca">&#8226; Ready</span>
+          </div>
+          <div class="topbar-actions">
+            <button id="refreshHealthBtn" class="btn btn-ghost">&#8635; Refresh</button>
+            <button id="runHealthyBtn" class="btn btn-ghost">&#9654; Healthy</button>
+            <button id="runIncidentBtn" class="btn btn-warn">&#9888; Incident</button>
+            <button id="runDemoBtn" class="btn btn-primary">&#9881; Analyze</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page body -->
+      <div class="page-body">
+
+        <!-- Row 1: Service Health -->
+        <section class="panel" id="healthSection">
+          <div class="panel-head">
+            <div class="panel-title-group">
+              <span class="panel-icon">&#9632;</span>
+              <h2 class="panel-title">Service Health</h2>
+            </div>
+            <span class="panel-note">Ports 8000 / 8002 / 8003</span>
+          </div>
+          <div id="healthCards" class="health-cards"></div>
+        </section>
+
+        <!-- Row 2: Controls + Pipeline Result -->
+        <div class="split-row">
+
+          <!-- Demo Controls -->
+          <section class="panel control-panel">
+            <div class="panel-head">
+              <div class="panel-title-group">
+                <span class="panel-icon">&#9881;</span>
+                <h2 class="panel-title">Demo Controls</h2>
+              </div>
+              <span class="panel-note">Sample &amp; window preset</span>
+            </div>
+
+            <label class="field">
+              <span class="field-label">Graph Sample</span>
+              <select id="sampleSelect"></select>
+            </label>
+
+            <label class="field">
+              <span class="field-label">Window Preset</span>
+              <select id="presetSelect">
+                <option value="healthy">Healthy</option>
+                <option value="suspicious">Suspicious</option>
+              </select>
+            </label>
+
+            <label class="check-row">
+              <input type="checkbox" id="forceRcaToggle" />
+              <span>Force RCA even when anomaly score is below threshold</span>
+            </label>
+
+            <div class="config-box">
+              <div class="config-row">
+                <span class="config-key">ANOMALY</span>
+                <span class="config-val" id="anomalyUrl">—</span>
+              </div>
+              <div class="config-row">
+                <span class="config-key">RCA</span>
+                <span class="config-val" id="rcaUrl">—</span>
+              </div>
+              <div class="config-row">
+                <span class="config-key">ORCH</span>
+                <span class="config-val" id="orchUrl">—</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Pipeline Result -->
+          <section class="panel result-panel">
+            <div class="panel-head">
+              <div class="panel-title-group">
+                <span class="panel-icon">&#9650;</span>
+                <h2 class="panel-title">Pipeline Result</h2>
+              </div>
+              <span id="pipelineState" class="state-pill muted">&#9679; Waiting</span>
+            </div>
+
+            <div class="metric-band">
+              <div class="metric-box">
+                <span class="metric-label">Anomaly Score</span>
+                <strong id="anomalyScore" class="metric-value">—</strong>
+                <small id="anomalyThreshold" class="metric-sub">threshold: —</small>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">Decision</span>
+                <strong id="anomalyDecision" class="metric-value">—</strong>
+                <small id="anomalyModel" class="metric-sub">model: —</small>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">Top-1 Root Cause</span>
+                <strong id="top1Service" class="metric-value">—</strong>
+                <small id="top1Score" class="metric-sub">score: —</small>
+              </div>
+            </div>
+
+            <div class="bar-wrap">
+              <div class="bar-labels">
+                <span>0</span><span>Anomaly Score</span><span>1</span>
+              </div>
+              <div class="bar-track">
+                <div id="anomalyBar" class="bar-fill"></div>
+              </div>
+            </div>
+
+            <div class="two-col">
+              <div class="subpanel">
+                <h3 class="subpanel-title">&#9660; Top-3 RCA Ranking</h3>
+                <ul id="topkList" class="ranking-list"></ul>
+              </div>
+              <div class="subpanel">
+                <h3 class="subpanel-title">&#9679; Recovery Recommendation</h3>
+                <div id="recoveryCard" class="recovery-card">
+                  <p>Run an analysis to receive an action proposal.</p>
+                </div>
+                <div class="action-row">
+                  <button id="restartPodBtn" class="btn btn-action">Restart Pod</button>
+                  <button id="scaleServiceBtn" class="btn btn-action">Scale Service</button>
+                  <button id="alertOnlyBtn" class="btn btn-ghost-sm">Alert Only</button>
+                </div>
+                <div id="recoveryLog" class="recovery-log">
+                  <span class="log-prompt">$</span> No recovery action executed yet.
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Row 3: Model Metadata -->
+        <section class="panel metadata-panel">
+          <div class="panel-head">
+            <div class="panel-title-group">
+              <span class="panel-icon">&#9675;</span>
+              <h2 class="panel-title">Model Metadata</h2>
+            </div>
+            <span class="panel-note">Best current artifacts</span>
+          </div>
+          <pre id="metadataBox" class="json-box">Loading metadata...</pre>
+        </section>
+
+      </div><!-- /.page-body -->
+    </div><!-- /.main-content -->
+  </div><!-- /.layout -->
+
+  <script>
+    window.DASHBOARD_CONFIG = __DASHBOARD_CONFIG__;
+  </script>
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>

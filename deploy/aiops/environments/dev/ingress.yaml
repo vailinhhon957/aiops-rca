@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aiops-dashboard
+spec:
+  rules:
+    - host: aiops-dev.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aiops-dashboard
+                port:
+                  number: 8010

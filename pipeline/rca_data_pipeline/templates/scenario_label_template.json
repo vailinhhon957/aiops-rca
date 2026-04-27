@@ -1,0 +1,38 @@
+{
+  "scenario_id": "ob_lat_pay",
+  "scenario_name": "payment_latency_injection",
+  "system_id": "online-boutique",
+  "fault_family": "latency",
+  "fault_type": "latency-injection",
+  "fault_target_service": "paymentservice",
+  "fault_target_role": "payment",
+  "severity_levels": [
+    {
+      "severity": "low",
+      "fault_params": {
+        "delay_ms": 200
+      }
+    },
+    {
+      "severity": "medium",
+      "fault_params": {
+        "delay_ms": 500
+      }
+    },
+    {
+      "severity": "high",
+      "fault_params": {
+        "delay_ms": 1000
+      }
+    }
+  ],
+  "expected_observation": {
+    "entry_service": "frontend",
+    "candidate_downstream_services": [
+      "checkoutservice",
+      "paymentservice"
+    ],
+    "expected_root_cause_service": "paymentservice",
+    "expected_root_cause_role": "payment"
+  }
+}

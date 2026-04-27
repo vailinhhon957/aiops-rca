@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONPATH=/app
+ENV AIOPS_DASHBOARD_GRAPH_ROOT=/app/data_rca_balanced_v3/processed/rca/graph_tensors
+
+COPY aiops_framework/dashboard/requirements.txt /tmp/requirements.txt
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && pip install --no-cache-dir -r /tmp/requirements.txt \
+    && curl -LO "https://dl.k8s.io/release/v1.34.1/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && rm -f kubectl \
+    && apt-get purge -y --auto-remove curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY aiops_framework /app/aiops_framework
+COPY pipeline /app/pipeline
+COPY data_rca_balanced_v3/processed/rca/graph_tensors /app/data_rca_balanced_v3/processed/rca/graph_tensors
+
+EXPOSE 8010
+
+CMD ["python", "-m", "uvicorn", "aiops_framework.dashboard.app:app", "--host", "0.0.0.0", "--port", "8010"]

@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONPATH=/app
+
+COPY aiops_framework/inference/orchestrator/requirements.txt /tmp/requirements.txt
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && pip install --no-cache-dir -r /tmp/requirements.txt \
+    && curl -LO "https://dl.k8s.io/release/v1.34.1/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && rm -f kubectl \
+    && apt-get purge -y --auto-remove curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY aiops_framework /app/aiops_framework
+
+EXPOSE 8002
+
+CMD ["python", "-m", "uvicorn", "aiops_framework.inference.orchestrator.app:app", "--host", "0.0.0.0", "--port", "8002"]

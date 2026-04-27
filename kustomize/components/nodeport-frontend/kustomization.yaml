@@ -1,0 +1,19 @@
+# Copyright 2026
+#
+# Exposes the storefront through a fixed NodePort for kubeadm-on-EC2 labs.
+
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+- patch: |-
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: frontend-external
+    spec:
+      type: NodePort
+      ports:
+      - name: http
+        port: 80
+        targetPort: 8080
+        nodePort: 30080

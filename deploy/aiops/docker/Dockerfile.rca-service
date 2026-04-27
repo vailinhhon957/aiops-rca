@@ -1,0 +1,18 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONPATH=/app
+ENV AIOPS_RCA_MODEL_ROOT=/app/models
+ENV AIOPS_RCA_MODEL_STAGE=production
+ENV AIOPS_RCA_DEVICE=cpu
+
+COPY aiops_framework/inference/rca_service/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+COPY aiops_framework /app/aiops_framework
+COPY data_rca_balanced_v3/models /app/models
+
+EXPOSE 8001
+
+CMD ["python", "-m", "uvicorn", "aiops_framework.inference.rca_service.app:app", "--host", "0.0.0.0", "--port", "8001"]

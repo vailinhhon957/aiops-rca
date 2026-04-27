@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONPATH=/app
+ENV AIOPS_ANOMALY_MODEL_ROOT=/app/models
+ENV AIOPS_ANOMALY_MODEL_STAGE=production
+
+COPY aiops_framework/inference/anomaly_service/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+COPY aiops_framework /app/aiops_framework
+COPY data_anomaly_balanced_v3/models /app/models
+
+EXPOSE 8000
+
+CMD ["python", "-m", "uvicorn", "aiops_framework.inference.anomaly_service.app:app", "--host", "0.0.0.0", "--port", "8000"]

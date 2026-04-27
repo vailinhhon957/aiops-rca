@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: aiops-dev
+resources:
+  - namespace.yaml
+  - ../../apps/anomaly-service/base
+  - ../../apps/rca-service/base
+  - ../../apps/orchestrator/base
+  - ../../apps/dashboard/base
+  - ingress.yaml
+images:
+  - name: ghcr.io/example/aiops-anomaly-service
+    newName: aiops-anomaly-service
+    newTag: latest
+  - name: ghcr.io/example/aiops-rca-service
+    newName: aiops-rca-service
+    newTag: latest
+  - name: ghcr.io/example/aiops-orchestrator
+    newName: aiops-orchestrator
+    newTag: latest
+  - name: ghcr.io/example/aiops-dashboard
+    newName: aiops-dashboard
+    newTag: latest
+patches:
+  - target:
+      kind: Deployment
+      name: aiops-dashboard
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/4
+        value:
+          name: AIOPS_RECOVERY_NAMESPACE
+          value: default
+  - target:
+      kind: Deployment
+      name: aiops-orchestrator
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/4
+        value:
+          name: AIOPS_K8S_NAMESPACE
+          value: default
