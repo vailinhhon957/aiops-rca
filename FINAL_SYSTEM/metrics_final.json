@@ -1,0 +1,21 @@
+﻿{
+  "anomaly": {
+    "dataset": "dataset/anomaly_final.csv",
+    "artifact_dir": "artifacts/anomaly_final",
+    "balanced_accuracy": 0.7142530319248339,
+    "specificity": 0.7759588400374181,
+    "recall_anomaly": 0.6525472238122496,
+    "f1_anomaly": 0.6773618538324421,
+    "roc_auc": 0.7994085009019872,
+    "average_precision": 0.7948834886953096
+  },
+  "rca": {
+    "dataset": "rca/dataset/graph_dataset_final.json",
+    "metadata": "rca/dataset/graph_metadata_final.json",
+    "artifact_dir": "rca/artifacts/rca_final",
+    "top1_acc": 0.75,
+    "top3_acc": 0.875,
+    "mrr": 0.8326388888888889,
+    "test_graphs": 24
+  }
+}

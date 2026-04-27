@@ -42,3 +42,10 @@ mlruns/
 __pycache__/
 openfile.ipynb
 test.ipynb
+
+# Allow FINAL_SYSTEM model artifacts
+!FINAL_SYSTEM/artifacts/**/*.pkl
+!FINAL_SYSTEM/artifacts/**/*.json
+!FINAL_SYSTEM/rca/artifacts/**/*.pt
+!FINAL_SYSTEM/rca/artifacts/**/*.json
+!FINAL_SYSTEM/dataset/*.csv

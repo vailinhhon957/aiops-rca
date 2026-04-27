@@ -1,0 +1,1544 @@
+{
+  "services": [
+    "checkoutservice",
+    "currencyservice",
+    "emailservice",
+    "frontend",
+    "paymentservice",
+    "productcatalogservice",
+    "recommendationservice"
+  ],
+  "service_to_idx": {
+    "checkoutservice": 0,
+    "currencyservice": 1,
+    "emailservice": 2,
+    "frontend": 3,
+    "paymentservice": 4,
+    "productcatalogservice": 5,
+    "recommendationservice": 6
+  },
+  "node_feature_names": [
+    "avg_latency_ms",
+    "p95_latency_ms",
+    "error_rate",
+    "request_count",
+    "request_share",
+    "in_degree",
+    "out_degree",
+    "role_id",
+    "tier_id",
+    "criticality_id",
+    "is_entrypoint",
+    "is_stateful"
+  ],
+  "graphs": [
+    {
+      "trace_id": "ob_norm_burst_001__ob_norm_burst_001",
+      "scenario": "normal_burst",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_burst_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_burst_002__ob_norm_burst_002",
+      "scenario": "normal_burst",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_burst_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_idle_001__ob_norm_idle_001",
+      "scenario": "normal_idle",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_idle_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_idle_002__ob_norm_idle_002",
+      "scenario": "normal_idle",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "currencyservice",
+        "frontend",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_idle_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_low_medium_001__ob_norm_low_medium_001",
+      "scenario": "normal_low_medium",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_low_medium_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_low_medium_002__ob_norm_low_medium_002",
+      "scenario": "normal_low_medium",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_low_medium_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_medium_high_001__ob_norm_medium_high_001",
+      "scenario": "normal_medium_high",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_medium_high_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_medium_high_002__ob_norm_medium_high_002",
+      "scenario": "normal_medium_high",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_medium_high_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_very_high_001__ob_norm_very_high_001",
+      "scenario": "normal_very_high",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_very_high_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_very_high_002__ob_norm_very_high_002",
+      "scenario": "normal_very_high",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_very_high_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_very_low_001__ob_norm_very_low_001",
+      "scenario": "normal_very_low",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_very_low_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_norm_very_low_002__ob_norm_very_low_002",
+      "scenario": "normal_very_low",
+      "graph_label": 0,
+      "root_cause_service": "none",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_norm_very_low_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_cpu_reco_sevhigh_loadhigh_009__traces_0001__active",
+      "scenario": "cpu_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_cpu_reco_sevhigh_loadhigh_009\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_cpu_reco_sevhigh_loadhigh_012__traces_0001__active",
+      "scenario": "cpu_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_cpu_reco_sevhigh_loadhigh_012\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_cpu_reco_sevlow_loadlow_001__traces_0001__active",
+      "scenario": "cpu_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_cpu_reco_sevlow_loadlow_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_cpu_reco_sevlow_loadlow_002__traces_0001__active",
+      "scenario": "cpu_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_cpu_reco_sevlow_loadlow_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_cpu_reco_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "cpu_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_cpu_reco_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_cpu_reco_sevmedium_loadmedium_006__traces_0001__active",
+      "scenario": "cpu_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_cpu_reco_sevmedium_loadmedium_006\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_cpu_reco_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "cpu_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_cpu_reco_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevhigh_loadhigh_009__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevhigh_loadhigh_009\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevhigh_loadhigh_010__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevhigh_loadhigh_010\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevhigh_loadhigh_011__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevhigh_loadhigh_011\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevhigh_loadhigh_012__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevhigh_loadhigh_012\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevlow_loadlow_001__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevlow_loadlow_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevlow_loadlow_002__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevlow_loadlow_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevlow_loadlow_003__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevlow_loadlow_003\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevmedium_loadmedium_005__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevmedium_loadmedium_005\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevmedium_loadmedium_006__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevmedium_loadmedium_006\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevmedium_loadmedium_007__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevmedium_loadmedium_007\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_http_frontend_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "http_frontend_500",
+      "graph_label": 1,
+      "root_cause_service": "frontend",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_http_frontend_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevhigh_loadhigh_009__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevhigh_loadhigh_009\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevhigh_loadhigh_010__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevhigh_loadhigh_010\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevhigh_loadhigh_011__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevhigh_loadhigh_011\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevhigh_loadhigh_012__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevhigh_loadhigh_012\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevlow_loadlow_001__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "currencyservice",
+        "frontend",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevlow_loadlow_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevlow_loadlow_002__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "currencyservice",
+        "frontend",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevlow_loadlow_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevlow_loadlow_003__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "currencyservice",
+        "frontend",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevlow_loadlow_003\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "currencyservice",
+        "frontend",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevmedium_loadmedium_005__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevmedium_loadmedium_005\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevmedium_loadmedium_006__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevmedium_loadmedium_006\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevmedium_loadmedium_007__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevmedium_loadmedium_007\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_checkout_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "pod_kill_checkout",
+      "graph_label": 1,
+      "root_cause_service": "checkoutservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_checkout_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_reco_sevhigh_loadhigh_010__traces_0001__active",
+      "scenario": "pod_kill_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_reco_sevhigh_loadhigh_010\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_reco_sevhigh_loadhigh_011__traces_0001__active",
+      "scenario": "pod_kill_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_reco_sevhigh_loadhigh_011\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_reco_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "pod_kill_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "currencyservice",
+        "frontend",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_reco_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_reco_sevmedium_loadmedium_007__traces_0001__active",
+      "scenario": "pod_kill_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_reco_sevmedium_loadmedium_007\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_kill_reco_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "pod_kill_recommendation",
+      "graph_label": 1,
+      "root_cause_service": "recommendationservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_kill_reco_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_catalog_sevlow_loadlow_002__traces_0001__active",
+      "scenario": "latency_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_catalog_sevlow_loadlow_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_catalog_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "latency_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "currencyservice",
+        "frontend",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_catalog_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_catalog_sevmedium_loadmedium_005__traces_0001__active",
+      "scenario": "latency_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_catalog_sevmedium_loadmedium_005\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_catalog_sevmedium_loadmedium_006__traces_0001__active",
+      "scenario": "latency_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_catalog_sevmedium_loadmedium_006\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_catalog_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "latency_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_catalog_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevhigh_loadhigh_009__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevhigh_loadhigh_009\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevhigh_loadhigh_010__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevhigh_loadhigh_010\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevhigh_loadhigh_011__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevhigh_loadhigh_011\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevhigh_loadhigh_012__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevhigh_loadhigh_012\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevlow_loadlow_001__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevlow_loadlow_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevlow_loadlow_002__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevlow_loadlow_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevlow_loadlow_003__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevlow_loadlow_003\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevmedium_loadmedium_005__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevmedium_loadmedium_005\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevmedium_loadmedium_006__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevmedium_loadmedium_006\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevmedium_loadmedium_007__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevmedium_loadmedium_007\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_lat_pay_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "latency_payment",
+      "graph_label": 1,
+      "root_cause_service": "paymentservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_lat_pay_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevhigh_loadhigh_009__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevhigh_loadhigh_009\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevhigh_loadhigh_010__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevhigh_loadhigh_010\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevhigh_loadhigh_011__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevhigh_loadhigh_011\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevhigh_loadhigh_012__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevhigh_loadhigh_012\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevlow_loadlow_001__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevlow_loadlow_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevlow_loadlow_002__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevlow_loadlow_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevlow_loadlow_003__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevlow_loadlow_003\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevmedium_loadmedium_005__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevmedium_loadmedium_005\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevmedium_loadmedium_006__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevmedium_loadmedium_006\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevmedium_loadmedium_007__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevmedium_loadmedium_007\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_mem_cart_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "memory_cart",
+      "graph_label": 1,
+      "root_cause_service": "cartservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_mem_cart_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_scale_catalog_sevhigh_loadhigh_009__traces_0001__active",
+      "scenario": "replica_drop_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_scale_catalog_sevhigh_loadhigh_009\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_scale_catalog_sevhigh_loadhigh_010__traces_0001__active",
+      "scenario": "replica_drop_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_scale_catalog_sevhigh_loadhigh_010\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_scale_catalog_sevhigh_loadhigh_011__traces_0001__active",
+      "scenario": "replica_drop_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_scale_catalog_sevhigh_loadhigh_011\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_scale_catalog_sevhigh_loadhigh_012__traces_0001__active",
+      "scenario": "replica_drop_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_scale_catalog_sevhigh_loadhigh_012\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_scale_catalog_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "replica_drop_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_scale_catalog_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_scale_catalog_sevmedium_loadmedium_005__traces_0001__active",
+      "scenario": "replica_drop_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_scale_catalog_sevmedium_loadmedium_005\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_scale_catalog_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "replica_drop_productcatalog",
+      "graph_label": 1,
+      "root_cause_service": "productcatalogservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_scale_catalog_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevhigh_loadhigh_009__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevhigh_loadhigh_009\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevhigh_loadhigh_010__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevhigh_loadhigh_010\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevhigh_loadhigh_011__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevhigh_loadhigh_011\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevhigh_loadhigh_012__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevhigh_loadhigh_012\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevlow_loadlow_001__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevlow_loadlow_001\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevlow_loadlow_002__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevlow_loadlow_002\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevlow_loadlow_003__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevlow_loadlow_003\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevlow_loadlow_004__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevlow_loadlow_004\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevmedium_loadmedium_005__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevmedium_loadmedium_005\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevmedium_loadmedium_006__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevmedium_loadmedium_006\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevmedium_loadmedium_007__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevmedium_loadmedium_007\\windows\\traces_0001.json"
+    },
+    {
+      "trace_id": "ob_timeout_currency_sevmedium_loadmedium_008__traces_0001__active",
+      "scenario": "timeout_currency",
+      "graph_label": 1,
+      "root_cause_service": "currencyservice",
+      "active_services": [
+        "checkoutservice",
+        "currencyservice",
+        "emailservice",
+        "frontend",
+        "paymentservice",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "source_file": "D:\\HOCTAP\\2025-2026\\HK2\\DACN\\microservices-demo\\data\\raw\\ob_timeout_currency_sevmedium_loadmedium_008\\windows\\traces_0001.json"
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "model_name": "rca_final",
+  "services": [
+    "checkoutservice",
+    "currencyservice",
+    "emailservice",
+    "frontend",
+    "paymentservice",
+    "productcatalogservice",
+    "recommendationservice"
+  ],
+  "node_feature_names": [
+    "avg_latency_ms",
+    "p95_latency_ms",
+    "error_rate",
+    "request_count",
+    "request_share",
+    "in_degree",
+    "out_degree",
+    "role_id",
+    "tier_id",
+    "criticality_id",
+    "is_entrypoint",
+    "is_stateful"
+  ],
+  "epochs_requested": 140,
+  "epochs_trained": 95,
+  "train_graphs": 48,
+  "val_graphs": 24,
+  "test_graphs": 24,
+  "seed": 42,
+  "hidden_dim": 96,
+  "heads": 4,
+  "dropout": 0.2,
+  "val_metrics": {
+    "graphs": 24,
+    "top1_acc": 0.5833333333333334,
+    "top3_acc": 0.875,
+    "mrr": 0.7420634920634921,
+    "per_service": {
+      "recommendationservice": {
+        "count": 6,
+        "top1_acc": 0.6666666666666666,
+        "top3_acc": 1.0
+      },
+      "paymentservice": {
+        "count": 3,
+        "top1_acc": 0.0,
+        "top3_acc": 0.3333333333333333
+      },
+      "productcatalogservice": {
+        "count": 6,
+        "top1_acc": 0.8333333333333334,
+        "top3_acc": 1.0
+      },
+      "currencyservice": {
+        "count": 3,
+        "top1_acc": 0.3333333333333333,
+        "top3_acc": 0.6666666666666666
+      },
+      "checkoutservice": {
+        "count": 3,
+        "top1_acc": 0.3333333333333333,
+        "top3_acc": 1.0
+      },
+      "frontend": {
+        "count": 3,
+        "top1_acc": 1.0,
+        "top3_acc": 1.0
+      }
+    }
+  },
+  "test_metrics": {
+    "graphs": 24,
+    "top1_acc": 0.75,
+    "top3_acc": 0.875,
+    "mrr": 0.8326388888888889,
+    "per_service": {
+      "recommendationservice": {
+        "count": 6,
+        "top1_acc": 0.8333333333333334,
+        "top3_acc": 0.8333333333333334
+      },
+      "paymentservice": {
+        "count": 3,
+        "top1_acc": 0.3333333333333333,
+        "top3_acc": 0.3333333333333333
+      },
+      "productcatalogservice": {
+        "count": 6,
+        "top1_acc": 0.8333333333333334,
+        "top3_acc": 1.0
+      },
+      "currencyservice": {
+        "count": 3,
+        "top1_acc": 1.0,
+        "top3_acc": 1.0
+      },
+      "checkoutservice": {
+        "count": 3,
+        "top1_acc": 0.3333333333333333,
+        "top3_acc": 1.0
+      },
+      "frontend": {
+        "count": 3,
+        "top1_acc": 1.0,
+        "top3_acc": 1.0
+      }
+    }
+  }
+}
