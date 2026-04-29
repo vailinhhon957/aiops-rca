@@ -623,6 +623,41 @@ select:focus {
   padding: 12px;
 }
 
+.feedback-box {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  padding: 12px;
+}
+
+.log-validation-box {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.log-lines {
+  margin-top: 8px;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+}
+
+.log-line {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-family: "Cascadia Code", Consolas, monospace;
+  color: var(--amber);
+  word-break: break-word;
+}
+
+.log-line:last-child {
+  border-bottom: none;
+}
+
 .history-head {
   display: flex;
   justify-content: space-between;

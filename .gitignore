@@ -42,3 +42,4 @@ mlruns/
 __pycache__/
 openfile.ipynb
 test.ipynb
+.tmp_aiops_dashboard/

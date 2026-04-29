@@ -54,6 +54,7 @@ class DemoAnalyzeRequest(BaseModel):
 
 
 class RecoveryActionRequest(BaseModel):
+    system_id: str = DEFAULT_SYSTEM_ID
     action: str
     service_name: str | None = None
     severity: str | None = None
@@ -105,33 +106,45 @@ def _best_effort_get(url: str) -> dict[str, Any]:
         return {"status": "down", "error": str(exc)}
 
 
-def _kubectl(args: list[str]) -> subprocess.CompletedProcess[str]:
-    cmd = ["kubectl", "-n", RECOVERY_NAMESPACE, *args]
+def _system_namespace(system_id: str) -> str:
+    try:
+        system = get_system(system_id)
+    except Exception as exc:
+        raise HTTPException(status_code=404, detail=f"Unknown system_id: {system_id}") from exc
+
+    namespace = str(system.get("namespace") or "").strip()
+    if not namespace:
+        raise HTTPException(status_code=400, detail=f"System {system_id} has no namespace configured")
+    return namespace
+
+
+def _kubectl(namespace: str, args: list[str]) -> subprocess.CompletedProcess[str]:
+    cmd = ["kubectl", "-n", namespace, *args]
     return subprocess.run(cmd, check=True, text=True, capture_output=True)
 
 
-def _deployment_payload(name: str) -> dict[str, Any]:
-    result = _kubectl(["get", "deployment", name, "-o", "json"])
+def _deployment_payload(namespace: str, name: str) -> dict[str, Any]:
+    result = _kubectl(namespace, ["get", "deployment", name, "-o", "json"])
     return json.loads(result.stdout)
 
 
-def _execute_recovery_action(action: str, service_name: str) -> dict[str, str]:
+def _execute_recovery_action(action: str, service_name: str, namespace: str) -> dict[str, str]:
     if RECOVERY_MODE != "real":
         action_map = {
             "restart_pod": {
                 "label": "Restart Pod",
                 "status": "accepted",
-                "notes": "Demo mode: would call Kubernetes API to restart the predicted service pod.",
+                "notes": f"Demo mode: would call Kubernetes API to restart the predicted service pod in namespace {namespace}.",
             },
             "scale_service": {
                 "label": "Scale Service",
                 "status": "accepted",
-                "notes": "Demo mode: would increase replicas or trigger HPA guidance for the predicted service.",
+                "notes": f"Demo mode: would increase replicas or trigger HPA guidance for the predicted service in namespace {namespace}.",
             },
             "alert_only": {
                 "label": "Alert Only",
                 "status": "accepted",
-                "notes": "Demo mode: would notify the operator and wait for manual approval.",
+                "notes": f"Demo mode: would notify the operator for namespace {namespace} and wait for manual approval.",
             },
         }
         if action not in action_map:
@@ -142,32 +155,32 @@ def _execute_recovery_action(action: str, service_name: str) -> dict[str, str]:
         return {
             "label": "Alert Only",
             "status": "accepted",
-            "notes": f"Real mode: alert recorded for {service_name}; no Kubernetes mutation was executed.",
+            "notes": f"Real mode: alert recorded for {service_name} in namespace {namespace}; no Kubernetes mutation was executed.",
         }
 
     if action == "restart_pod":
-        _kubectl(["rollout", "restart", f"deployment/{service_name}"])
-        _kubectl(["rollout", "status", f"deployment/{service_name}", f"--timeout={RECOVERY_TIMEOUT_SECONDS}s"])
+        _kubectl(namespace, ["rollout", "restart", f"deployment/{service_name}"])
+        _kubectl(namespace, ["rollout", "status", f"deployment/{service_name}", f"--timeout={RECOVERY_TIMEOUT_SECONDS}s"])
         return {
             "label": "Restart Pod",
             "status": "executed",
             "notes": (
-                f"Real mode: restarted deployment/{service_name} in namespace {RECOVERY_NAMESPACE} "
+                f"Real mode: restarted deployment/{service_name} in namespace {namespace} "
                 f"and rollout completed within {RECOVERY_TIMEOUT_SECONDS}s."
             ),
         }
 
     if action == "scale_service":
-        deployment = _deployment_payload(service_name)
+        deployment = _deployment_payload(namespace, service_name)
         current_replicas = int(deployment.get("spec", {}).get("replicas", 1) or 1)
         target_replicas = current_replicas + 1
-        _kubectl(["scale", f"deployment/{service_name}", f"--replicas={target_replicas}"])
-        _kubectl(["rollout", "status", f"deployment/{service_name}", f"--timeout={RECOVERY_TIMEOUT_SECONDS}s"])
+        _kubectl(namespace, ["scale", f"deployment/{service_name}", f"--replicas={target_replicas}"])
+        _kubectl(namespace, ["rollout", "status", f"deployment/{service_name}", f"--timeout={RECOVERY_TIMEOUT_SECONDS}s"])
         return {
             "label": "Scale Service",
             "status": "executed",
             "notes": (
-                f"Real mode: scaled deployment/{service_name} in namespace {RECOVERY_NAMESPACE} "
+                f"Real mode: scaled deployment/{service_name} in namespace {namespace} "
                 f"from {current_replicas} to {target_replicas} replicas."
             ),
         }
@@ -328,16 +341,17 @@ def execute_recovery(payload: RecoveryActionRequest) -> dict[str, Any]:
     if payload.action not in {"restart_pod", "scale_service", "alert_only"}:
         raise HTTPException(status_code=400, detail=f"Unsupported recovery action: {payload.action}")
 
+    namespace = _system_namespace(payload.system_id)
     service_name = payload.service_name or "unknown"
     try:
-        action_result = _execute_recovery_action(payload.action, service_name)
+        action_result = _execute_recovery_action(payload.action, service_name, namespace)
     except subprocess.CalledProcessError as exc:
         stderr = (exc.stderr or "").strip()
         stdout = (exc.stdout or "").strip()
         raise HTTPException(
             status_code=502,
             detail=(
-                f"Recovery command failed for {service_name}: "
+                f"Recovery command failed for {service_name} in system {payload.system_id} namespace {namespace}: "
                 f"{stderr or stdout or str(exc)}"
             ),
         ) from exc
@@ -348,7 +362,8 @@ def execute_recovery(payload: RecoveryActionRequest) -> dict[str, Any]:
         "action_label": action_result["label"],
         "status": action_result["status"],
         "mode": RECOVERY_MODE,
-        "namespace": RECOVERY_NAMESPACE,
+        "system_id": payload.system_id,
+        "namespace": namespace,
         "service_name": service_name,
         "severity": payload.severity or "unknown",
         "source": payload.source,

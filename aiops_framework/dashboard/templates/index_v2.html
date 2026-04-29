@@ -70,6 +70,11 @@
             </div>
 
             <label class="field">
+              <span class="field-label">System</span>
+              <select id="systemSelect"></select>
+            </label>
+
+            <label class="field">
               <span class="field-label">Graph Sample</span>
               <select id="sampleSelect"></select>
             </label>
@@ -149,6 +154,25 @@
                   <button id="alertOnlyBtn" class="btn btn-ghost-sm">Alert Only</button>
                 </div>
                 <div id="recoveryLog" class="recovery-log"><span class="log-prompt">$</span> No recovery action executed yet.</div>
+                <div class="feedback-box">
+                  <div class="history-head">
+                    <span class="history-title">Incident Feedback</span>
+                    <span class="history-note">uses monitoring event</span>
+                  </div>
+                  <div class="action-row">
+                    <button id="acceptIncidentBtn" class="btn btn-action">Accept Incident</button>
+                    <button id="rejectIncidentBtn" class="btn btn-warn">Reject False Positive</button>
+                    <button id="unknownIncidentBtn" class="btn btn-ghost-sm">Mark Unknown</button>
+                  </div>
+                  <div id="feedbackLog" class="history-empty">Run Live Analyze to create an event.</div>
+                </div>
+                <div class="history-box">
+                  <div class="history-head">
+                    <span class="history-title">Log Validation</span>
+                    <span class="history-note">kubectl logs</span>
+                  </div>
+                  <div id="logValidationBox" class="log-validation-box">No log query yet.</div>
+                </div>
                 <div class="history-box">
                   <div class="history-head">
                     <span class="history-title">Recovery History</span>
