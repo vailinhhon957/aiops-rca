@@ -22,6 +22,7 @@ DEFAULT_JAEGER_URL = os.environ.get("AIOPS_LIVE_JAEGER_URL", "http://127.0.0.1:1
 DEFAULT_PROMETHEUS_URL = os.environ.get("AIOPS_LIVE_PROM_URL", "http://127.0.0.1:9090")
 DEFAULT_SYSTEM_ID = os.environ.get("AIOPS_LIVE_SYSTEM_ID", "online-boutique")
 DEFAULT_SOURCE_SERVICE = os.environ.get("AIOPS_LIVE_SOURCE_SERVICE", "frontend")
+JAEGER_INTERNAL_SERVICES = {"jaeger"}
 
 
 def _load_json(url: str) -> dict[str, Any]:
@@ -29,11 +30,45 @@ def _load_json(url: str) -> dict[str, Any]:
         return json.loads(response.read().decode("utf-8-sig"))
 
 
-def fetch_jaeger_payload(
-    jaeger_url: str = DEFAULT_JAEGER_URL,
-    source_service: str = DEFAULT_SOURCE_SERVICE,
-    lookback_minutes: int = 2,
-    query_limit: int = 150,
+def fetch_jaeger_services(jaeger_url: str = DEFAULT_JAEGER_URL) -> list[str]:
+    payload = _load_json(f"{jaeger_url.rstrip('/')}/api/services")
+    services = [str(item) for item in payload.get("data", []) if str(item)]
+    app_services = [svc for svc in services if svc not in JAEGER_INTERNAL_SERVICES]
+    return app_services or services
+
+
+def _resolve_source_services(jaeger_url: str, source_service: str) -> list[str]:
+    requested = (source_service or "").strip()
+    if requested.lower() in {"all", "*"}:
+        return fetch_jaeger_services(jaeger_url)
+    services = [item.strip() for item in requested.split(",") if item.strip()]
+    return services or [DEFAULT_SOURCE_SERVICE]
+
+
+def _merge_jaeger_payloads(payloads: list[dict[str, Any]]) -> dict[str, Any]:
+    merged: dict[str, Any] = {"data": [], "total": 0, "limit": 0, "offset": 0, "errors": None}
+    seen_trace_ids: set[str] = set()
+    errors: list[Any] = []
+    for payload in payloads:
+        for trace in payload.get("data", []):
+            trace_id = str(trace.get("traceID") or trace.get("traceId") or "")
+            if trace_id and trace_id in seen_trace_ids:
+                continue
+            if trace_id:
+                seen_trace_ids.add(trace_id)
+            merged["data"].append(trace)
+        if payload.get("errors"):
+            errors.append(payload["errors"])
+    merged["total"] = len(merged["data"])
+    merged["errors"] = errors or None
+    return merged
+
+
+def _fetch_jaeger_payload_for_service(
+    jaeger_url: str,
+    source_service: str,
+    lookback_minutes: int,
+    query_limit: int,
 ) -> dict[str, Any]:
     end = datetime.now(timezone.utc)
     start = end - timedelta(minutes=max(1, int(lookback_minutes)))
@@ -47,6 +82,25 @@ def fetch_jaeger_payload(
     )
     url = f"{jaeger_url.rstrip('/')}/api/traces?{params}"
     return _load_json(url)
+
+
+def fetch_jaeger_payload(
+    jaeger_url: str = DEFAULT_JAEGER_URL,
+    source_service: str = DEFAULT_SOURCE_SERVICE,
+    lookback_minutes: int = 2,
+    query_limit: int = 150,
+) -> dict[str, Any]:
+    services = _resolve_source_services(jaeger_url, source_service)
+    payloads = [
+        _fetch_jaeger_payload_for_service(
+            jaeger_url=jaeger_url,
+            source_service=service,
+            lookback_minutes=lookback_minutes,
+            query_limit=query_limit,
+        )
+        for service in services
+    ]
+    return _merge_jaeger_payloads(payloads)
 
 
 def _extract_prom_value(payload: dict[str, Any]) -> float | None:
@@ -192,6 +246,7 @@ def collect_live_inputs(
 ) -> dict[str, Any]:
     catalog_df = load_service_catalog(system_id)
     lookup = service_lookup(catalog_df)
+    selected_services = _resolve_source_services(jaeger_url, source_service)
 
     payload = fetch_jaeger_payload(
         jaeger_url=jaeger_url,
@@ -224,6 +279,7 @@ def collect_live_inputs(
         "span_count": int(len(spans_df)),
         "service_count": int(spans_df["service_name"].nunique()),
         "source_service": source_service,
+        "selected_services": selected_services,
         "jaeger_url": jaeger_url,
         "lookback_minutes": lookback_minutes,
     }

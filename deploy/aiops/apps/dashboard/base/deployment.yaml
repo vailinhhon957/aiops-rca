@@ -38,9 +38,14 @@ spec:
             - name: AIOPS_LIVE_JAEGER_URL
               value: http://jaeger.observability.svc.cluster.local:16686
             - name: AIOPS_LIVE_SOURCE_SERVICE
-              value: frontend
+              value: all
             - name: AIOPS_LIVE_SYSTEM_ID
               value: online-boutique
+            - name: AIOPS_DASHBOARD_STATE_DIR
+              value: /data/aiops-dashboard
+          volumeMounts:
+            - name: dashboard-state
+              mountPath: /data/aiops-dashboard
           readinessProbe:
             httpGet:
               path: /api/health
@@ -60,3 +65,7 @@ spec:
             limits:
               cpu: 500m
               memory: 768Mi
+      volumes:
+        - name: dashboard-state
+          persistentVolumeClaim:
+            claimName: aiops-dashboard-state

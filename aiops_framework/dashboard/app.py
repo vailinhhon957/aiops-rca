@@ -15,10 +15,21 @@ from pydantic import BaseModel
 from aiops_framework.inference.orchestrator.clients import get_json, post_json
 from aiops_framework.inference.anomaly_service.schemas import WindowPredictResponse
 from aiops_framework.inference.rca_service.schemas import GraphPredictResponse, RankedNode
+from aiops_framework.registry.system_catalog import get_system, list_systems
 
 from .demo_data import DEFAULT_GRAPH_ROOT, WINDOW_PRESETS, build_demo_pipeline_payload, list_graph_samples
 from .live_data import DEFAULT_JAEGER_URL, DEFAULT_PROMETHEUS_URL, DEFAULT_SOURCE_SERVICE, DEFAULT_SYSTEM_ID, collect_live_inputs
+from .logs import fetch_recent_logs
 from .policy import recommend_actions
+from .store import (
+    create_monitoring_event,
+    get_monitoring_event,
+    init_store,
+    list_audit_logs,
+    list_monitoring_events,
+    save_feedback,
+    write_audit_log,
+)
 
 
 DASHBOARD_DIR = Path(__file__).resolve().parent
@@ -50,6 +61,13 @@ class RecoveryActionRequest(BaseModel):
     context: dict[str, Any] = {}
 
 
+class FeedbackRequest(BaseModel):
+    feedback: str
+    actor: str = "operator"
+    notes: str = ""
+    context: dict[str, Any] = {}
+
+
 RECOVERY_HISTORY: list[dict[str, Any]] = []
 
 
@@ -58,7 +76,7 @@ class LiveAnalyzeRequest(BaseModel):
     source_service: str = DEFAULT_SOURCE_SERVICE
     jaeger_url: str = DEFAULT_JAEGER_URL
     prometheus_url: str = DEFAULT_PROMETHEUS_URL
-    lookback_minutes: int = 2
+    lookback_minutes: int = 1
     query_limit: int = 150
     run_rca_on_any_input: bool = False
 
@@ -73,6 +91,11 @@ def _read_index_html() -> str:
         "prometheusUrl": DEFAULT_PROMETHEUS_URL,
     }
     return html.replace("__DASHBOARD_CONFIG__", json.dumps(config, ensure_ascii=False))
+
+
+@app.on_event("startup")
+def startup() -> None:
+    init_store()
 
 
 def _best_effort_get(url: str) -> dict[str, Any]:
@@ -223,15 +246,76 @@ def dashboard_metadata() -> dict[str, Any]:
             "prometheus_url": DEFAULT_PROMETHEUS_URL,
         },
         "samples": list_graph_samples(),
+        "systems": list_systems(),
         "anomaly": _best_effort_get(f"{ANOMALY_BASE_URL}/metadata"),
         "rca": _best_effort_get(f"{RCA_BASE_URL}/metadata"),
         "orchestrator": _best_effort_get(f"{ORCHESTRATOR_BASE_URL}/metadata"),
     }
 
 
+@app.get("/api/systems")
+def systems() -> dict[str, Any]:
+    return {"items": list_systems(), "default_system_id": DEFAULT_SYSTEM_ID}
+
+
+@app.get("/api/systems/{system_id}")
+def system_detail(system_id: str) -> dict[str, Any]:
+    try:
+        return get_system(system_id)
+    except Exception as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
 @app.get("/api/samples")
 def samples() -> dict[str, Any]:
     return {"items": list_graph_samples(), "graph_root": str(DEFAULT_GRAPH_ROOT)}
+
+
+@app.get("/api/monitoring-events")
+def monitoring_events(limit: int = 50, system_id: str | None = None) -> dict[str, Any]:
+    return {"items": list_monitoring_events(limit=limit, system_id=system_id)}
+
+
+@app.get("/api/monitoring-events/{event_id}")
+def monitoring_event_detail(event_id: int) -> dict[str, Any]:
+    event = get_monitoring_event(event_id)
+    if event is None:
+        raise HTTPException(status_code=404, detail=f"Monitoring event not found: {event_id}")
+    return event
+
+
+@app.post("/api/monitoring-events/{event_id}/feedback")
+def record_feedback(event_id: int, payload: FeedbackRequest) -> dict[str, Any]:
+    allowed = {"accepted_incident", "rejected_false_positive", "unknown"}
+    if payload.feedback not in allowed:
+        raise HTTPException(status_code=400, detail=f"Unsupported feedback: {payload.feedback}")
+    try:
+        return save_feedback(
+            event_id=event_id,
+            feedback=payload.feedback,
+            actor=payload.actor,
+            notes=payload.notes,
+            payload=payload.context,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/api/audit-logs")
+def audit_logs(limit: int = 50) -> dict[str, Any]:
+    return {"items": list_audit_logs(limit=limit)}
+
+
+@app.get("/api/logs/recent")
+def recent_logs(system_id: str = DEFAULT_SYSTEM_ID, service_name: str = "", tail: int = 200, since: str = "10m") -> dict[str, Any]:
+    try:
+        return fetch_recent_logs(system_id=system_id, service_name=service_name, tail=tail, since=since)
+    except subprocess.CalledProcessError as exc:
+        stderr = (exc.stderr or "").strip()
+        stdout = (exc.stdout or "").strip()
+        raise HTTPException(status_code=502, detail=stderr or stdout or str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/recovery/history")
@@ -272,6 +356,13 @@ def execute_recovery(payload: RecoveryActionRequest) -> dict[str, Any]:
         "context": payload.context,
     }
     RECOVERY_HISTORY.append(event)
+    write_audit_log(
+        action=f"recovery.{payload.action}",
+        target_type="service",
+        target_id=service_name,
+        actor=payload.source,
+        payload=event,
+    )
     return event
 
 
@@ -311,12 +402,16 @@ def live_analyze(payload: LiveAnalyzeRequest) -> JSONResponse:
     result["live_context"] = {
         "trace_snapshot": live_inputs["trace_snapshot"],
         "metrics_snapshot": live_inputs["metrics_snapshot"],
+        "window_features": live_inputs["window"]["features"],
         "system_id": payload.system_id,
         "source_service": payload.source_service,
         "lookback_minutes": payload.lookback_minutes,
         "jaeger_url": payload.jaeger_url,
         "prometheus_url": payload.prometheus_url,
     }
+    event = create_monitoring_event(result)
+    result["monitoring_event"] = event
+    result["event_id"] = event["id"]
     return JSONResponse(result)
 
 

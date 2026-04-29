@@ -2,6 +2,7 @@ const config = window.DASHBOARD_CONFIG || {};
 
 const healthCards = document.getElementById("healthCards");
 const sampleSelect = document.getElementById("sampleSelect");
+const systemSelect = document.getElementById("systemSelect");
 const presetSelect = document.getElementById("presetSelect");
 const forceRcaToggle = document.getElementById("forceRcaToggle");
 const refreshHealthBtn = document.getElementById("refreshHealthBtn");
@@ -26,8 +27,14 @@ const restartPodBtn = document.getElementById("restartPodBtn");
 const scaleServiceBtn = document.getElementById("scaleServiceBtn");
 const alertOnlyBtn = document.getElementById("alertOnlyBtn");
 const liveSnapshot = document.getElementById("liveSnapshot");
+const acceptIncidentBtn = document.getElementById("acceptIncidentBtn");
+const rejectIncidentBtn = document.getElementById("rejectIncidentBtn");
+const unknownIncidentBtn = document.getElementById("unknownIncidentBtn");
+const feedbackLog = document.getElementById("feedbackLog");
+const logValidationBox = document.getElementById("logValidationBox");
 
 let latestAnalysis = null;
+let systems = [];
 
 document.getElementById("anomalyUrl").textContent = config.anomalyBaseUrl || "-";
 document.getElementById("rcaUrl").textContent = config.rcaBaseUrl || "-";
@@ -44,6 +51,15 @@ function badgeClass(status) {
 function setPipelineState(text, klass = "muted") {
   pipelineState.textContent = text;
   pipelineState.className = `state-pill ${klass}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function renderHealth(data) {
@@ -74,12 +90,31 @@ function renderMetadata(data) {
   metadataBox.textContent = JSON.stringify({
     presets: data.window_presets,
     sample_count: data.samples?.length || 0,
+    systems: data.systems?.map((item) => item.system_id) || [],
     live_defaults: data.live_defaults,
     recovery: data.recovery,
     anomaly_model: data.anomaly?.inference_config?.model_name,
     rca_model: data.rca?.inference_config?.model_name,
     orchestrator: data.orchestrator,
   }, null, 2);
+}
+
+function renderSystems(items, defaultSystemId) {
+  systems = Array.isArray(items) ? items : [];
+  systemSelect.innerHTML = "";
+  for (const item of systems) {
+    const option = document.createElement("option");
+    option.value = item.system_id;
+    option.textContent = item.display_name || item.system_id;
+    systemSelect.appendChild(option);
+  }
+  if (systems.length > 0) {
+    systemSelect.value = defaultSystemId || systems[0].system_id;
+  }
+}
+
+function selectedSystem() {
+  return systems.find((item) => item.system_id === systemSelect.value) || systems[0] || null;
 }
 
 function renderSamples(items) {
@@ -101,15 +136,21 @@ function renderLiveSnapshot(result) {
 
   const trace = live.trace_snapshot || {};
   const metrics = live.metrics_snapshot || {};
+  const features = live.window_features || {};
   const metricText = metrics.values && Object.keys(metrics.values).length
     ? Object.entries(metrics.values).map(([key, value]) => `${key}=${Number(value.value).toFixed(3)}`).join(" | ")
     : "No compatible Prometheus metric found";
 
   liveSnapshot.innerHTML = `
+    <div><strong>System:</strong> ${live.system_id || "-"}</div>
+    <div><strong>Event:</strong> ${result.event_id || "-"}</div>
     <div><strong>Source:</strong> ${live.source_service}</div>
     <div><strong>Trace count:</strong> ${trace.trace_count ?? "-"}</div>
     <div><strong>Span count:</strong> ${trace.span_count ?? "-"}</div>
     <div><strong>Service count:</strong> ${trace.service_count ?? "-"}</div>
+    <div><strong>Error trace ratio:</strong> ${Number(features.error_trace_ratio ?? 0).toFixed(2)}</div>
+    <div><strong>Error span ratio:</strong> ${Number(features.error_span_ratio ?? 0).toFixed(2)}</div>
+    <div><strong>P95 latency:</strong> ${Number(features.p95_trace_duration_ms ?? 0).toFixed(1)} ms</div>
     <div><strong>Prometheus:</strong> ${metrics.status || "-"}</div>
     <div><strong>Metrics:</strong> ${metricText}</div>
   `;
@@ -185,6 +226,13 @@ function renderAnalysis(result) {
   `;
 
   renderLiveSnapshot(result);
+  if (anomaly.is_anomaly && rca?.top1?.service_name) {
+    refreshLogValidation(rca.top1.service_name).catch((err) => {
+      logValidationBox.textContent = `Log validation failed: ${err.message}`;
+    });
+  } else {
+    logValidationBox.textContent = "No anomaly RCA target yet.";
+  }
 }
 
 function currentRecoveryContext() {
@@ -198,6 +246,8 @@ function currentRecoveryContext() {
       sample_name: latestAnalysis?.demo_context?.sample_name || latestAnalysis?.live_context?.source_service || sampleSelect.value,
       preset: latestAnalysis?.demo_context?.preset || presetSelect.value,
       anomaly_score: latestAnalysis?.anomaly?.anomaly_score ?? null,
+      event_id: latestAnalysis?.event_id ?? null,
+      system_id: latestAnalysis?.live_context?.system_id ?? systemSelect.value,
     },
   };
 }
@@ -231,6 +281,59 @@ async function executeRecovery(action) {
   } catch (err) {
     alert(err.message);
   }
+}
+
+async function recordFeedback(feedback) {
+  if (!latestAnalysis?.event_id) {
+    alert("Run Live Analyze first so the dashboard has a monitoring event.");
+    return;
+  }
+  try {
+    const result = await fetchJson(`/api/monitoring-events/${latestAnalysis.event_id}/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        feedback,
+        actor: "operator",
+        context: {
+          system_id: latestAnalysis?.live_context?.system_id || systemSelect.value,
+          anomaly_score: latestAnalysis?.anomaly?.anomaly_score ?? null,
+          rca_top1_service: latestAnalysis?.rca?.top1?.service_name || null,
+        },
+      }),
+    });
+    feedbackLog.innerHTML = `
+      <strong>${escapeHtml(result.feedback)}</strong> saved for event #${escapeHtml(result.event_id)}<br/>
+      <small>${escapeHtml(result.created_at)}</small>
+    `;
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function refreshLogValidation(serviceName) {
+  const systemId = latestAnalysis?.live_context?.system_id || systemSelect.value;
+  logValidationBox.textContent = `Loading logs for ${serviceName}...`;
+  const params = new URLSearchParams({
+    system_id: systemId,
+    service_name: serviceName,
+    tail: "200",
+    since: "10m",
+  });
+  const data = await fetchJson(`/api/logs/recent?${params.toString()}`);
+  const lines = data.important_lines?.length ? data.important_lines : data.raw_tail || [];
+  const renderedLines = lines.length
+    ? lines.map((line) => `<div class="log-line">${escapeHtml(line)}</div>`).join("")
+    : `<div class="history-empty">No error/warn/exception lines found in the recent log window.</div>`;
+  logValidationBox.innerHTML = `
+    <div class="history-meta">
+      <span>service=${escapeHtml(data.service_name)}</span>
+      <span>namespace=${escapeHtml(data.namespace)}</span>
+      <span>important=${escapeHtml(data.important_count)}</span>
+      <span>lines=${escapeHtml(data.line_count)}</span>
+    </div>
+    <div class="log-lines">${renderedLines}</div>
+  `;
 }
 
 async function fetchJson(url, options = {}) {
@@ -269,10 +372,13 @@ async function runAnalysis({ preset, runRcaOnAnyInput }) {
 async function runLiveAnalysis() {
   setPipelineState("Collecting live data", "warn");
   try {
+    const system = selectedSystem();
     const result = await fetchJson("/api/live/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        system_id: system?.system_id || systemSelect.value,
+        source_service: "all",
         run_rca_on_any_input: false,
       }),
     });
@@ -285,16 +391,18 @@ async function runLiveAnalysis() {
 
 async function boot() {
   setPipelineState("Loading", "muted");
-  const [health, metadata, samples, history] = await Promise.all([
+  const [health, metadata, samples, history, systemPayload] = await Promise.all([
     fetchJson("/api/health"),
     fetchJson("/api/metadata"),
     fetchJson("/api/samples"),
     fetchJson("/api/recovery/history"),
+    fetchJson("/api/systems"),
   ]);
   renderHealth(health);
   renderMetadata(metadata);
   renderSamples(samples.items || []);
   renderRecoveryHistory(history.items || []);
+  renderSystems(systemPayload.items || [], systemPayload.default_system_id);
   setPipelineState("Ready", "ok");
 }
 
@@ -343,6 +451,18 @@ scaleServiceBtn.addEventListener("click", async () => {
 
 alertOnlyBtn.addEventListener("click", async () => {
   await executeRecovery("alert_only");
+});
+
+acceptIncidentBtn.addEventListener("click", async () => {
+  await recordFeedback("accepted_incident");
+});
+
+rejectIncidentBtn.addEventListener("click", async () => {
+  await recordFeedback("rejected_false_positive");
+});
+
+unknownIncidentBtn.addEventListener("click", async () => {
+  await recordFeedback("unknown");
 });
 
 boot().catch((err) => {
