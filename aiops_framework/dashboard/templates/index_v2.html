@@ -7,6 +7,50 @@
   <link rel="stylesheet" href="/static/dashboard.css" />
 </head>
 <body>
+  <div id="authOverlay" class="auth-overlay hidden">
+    <div class="auth-shell">
+      <section class="auth-panel">
+        <div class="auth-header">
+          <span class="auth-kicker">AIOps Dashboard Access</span>
+          <h1 id="authTitle" class="auth-title">Sign in</h1>
+          <p id="authSubtitle" class="auth-subtitle">Sign in to continue to the dashboard.</p>
+        </div>
+
+        <div id="authMessage" class="auth-message hidden"></div>
+
+        <form id="loginForm" class="auth-form hidden">
+          <label class="field auth-field">
+            <span class="field-label">Username</span>
+            <input id="loginUsername" class="text-input" type="text" autocomplete="username" required />
+          </label>
+          <label class="field auth-field">
+            <span class="field-label">Password</span>
+            <input id="loginPassword" class="text-input" type="password" autocomplete="current-password" required />
+          </label>
+          <button id="loginSubmitBtn" class="btn btn-primary auth-submit" type="submit">Sign in</button>
+        </form>
+
+        <form id="bootstrapForm" class="auth-form hidden">
+          <label class="field auth-field">
+            <span class="field-label">Admin Username</span>
+            <input id="bootstrapUsername" class="text-input" type="text" autocomplete="username" value="admin" required />
+          </label>
+          <label class="field auth-field">
+            <span class="field-label">Display Name</span>
+            <input id="bootstrapDisplayName" class="text-input" type="text" autocomplete="name" value="Administrator" required />
+          </label>
+          <label class="field auth-field">
+            <span class="field-label">Admin Password</span>
+            <input id="bootstrapPassword" class="text-input" type="password" autocomplete="new-password" required />
+          </label>
+          <button id="bootstrapSubmitBtn" class="btn btn-primary auth-submit" type="submit">Create Admin Account</button>
+        </form>
+
+        <div id="authHint" class="auth-hint"></div>
+      </section>
+    </div>
+  </div>
+
   <div class="layout">
     <aside class="sidebar">
       <div class="sidebar-logo">
@@ -14,10 +58,11 @@
         <span class="logo-text">AIOps</span>
       </div>
       <nav class="sidebar-nav">
-        <a href="#" class="nav-item active"><span class="nav-icon">&#9783;</span><span class="nav-label">Dashboard</span></a>
-        <a href="#" class="nav-item"><span class="nav-icon">&#10003;</span><span class="nav-label">Health</span></a>
-        <a href="#" class="nav-item"><span class="nav-icon">&#9888;</span><span class="nav-label">Incidents</span></a>
-        <a href="#" class="nav-item"><span class="nav-icon">&#9776;</span><span class="nav-label">Metadata</span></a>
+        <button type="button" class="nav-item active" data-view="dashboard"><span class="nav-icon">&#9783;</span><span class="nav-label">Dashboard</span></button>
+        <button type="button" class="nav-item" data-view="dashboard" data-scroll-target="healthSection"><span class="nav-icon">&#10003;</span><span class="nav-label">Health</span></button>
+        <button type="button" class="nav-item" data-view="dashboard" data-scroll-target="resultSection"><span class="nav-icon">&#9888;</span><span class="nav-label">Incidents</span></button>
+        <button type="button" class="nav-item" data-view="metadata"><span class="nav-icon">&#9776;</span><span class="nav-label">Metadata</span></button>
+        <button id="navAccessControl" type="button" class="nav-item hidden" data-view="access-control"><span class="nav-icon">&#128274;</span><span class="nav-label">Access Control</span></button>
       </nav>
       <div class="sidebar-footer"><span class="sidebar-ver">v1.0.0</span></div>
     </aside>
@@ -37,6 +82,14 @@
             <span class="ts-label">RCA</span>
             <span class="ts-badge ok-dot" id="topbarRca">&#8226; Ready</span>
           </div>
+          <div class="topbar-auth">
+            <span id="authStatusBadge" class="status-pill muted">Auth off</span>
+            <div id="authUserBox" class="auth-user-box hidden">
+              <span id="authDisplayName" class="auth-user-name">Guest</span>
+              <span id="authRoleLabel" class="auth-user-role">-</span>
+            </div>
+            <button id="logoutBtn" class="btn btn-ghost hidden" type="button">Logout</button>
+          </div>
           <div class="topbar-actions">
             <button id="refreshHealthBtn" class="btn btn-ghost">Refresh</button>
             <button id="runHealthyBtn" class="btn btn-ghost">Healthy</button>
@@ -48,146 +101,148 @@
       </header>
 
       <div class="page-body">
-        <section class="panel" id="healthSection">
-          <div class="panel-head">
-            <div class="panel-title-group">
-              <span class="panel-icon">&#9632;</span>
-              <h2 class="panel-title">Service Health</h2>
-            </div>
-            <span class="panel-note">Ports 8000 / 8002 / 8003 / 8010</span>
-          </div>
-          <div id="healthCards" class="health-cards"></div>
-        </section>
-
-        <div class="split-row">
-          <section class="panel control-panel">
+        <div id="dashboardView" class="view-panel active-view" data-view-panel="dashboard">
+          <section class="panel" id="healthSection">
             <div class="panel-head">
               <div class="panel-title-group">
-                <span class="panel-icon">&#9881;</span>
-                <h2 class="panel-title">Demo Controls</h2>
+                <span class="panel-icon">&#9632;</span>
+                <h2 class="panel-title">Service Health</h2>
               </div>
-              <span class="panel-note">Sample and live sources</span>
+              <span class="panel-note">Ports 8000 / 8002 / 8003 / 8010</span>
             </div>
-
-            <label class="field">
-              <span class="field-label">System</span>
-              <select id="systemSelect"></select>
-            </label>
-
-            <label class="field">
-              <span class="field-label">Graph Sample</span>
-              <select id="sampleSelect"></select>
-            </label>
-
-            <label class="field">
-              <span class="field-label">Window Preset</span>
-              <select id="presetSelect">
-                <option value="healthy">Healthy</option>
-                <option value="suspicious">Suspicious</option>
-              </select>
-            </label>
-
-            <label class="check-row">
-              <input type="checkbox" id="forceRcaToggle" />
-              <span>Force RCA even when anomaly score is below threshold</span>
-            </label>
-
-            <div class="config-box">
-              <div class="config-row"><span class="config-key">ANOMALY</span><span class="config-val" id="anomalyUrl">-</span></div>
-              <div class="config-row"><span class="config-key">RCA</span><span class="config-val" id="rcaUrl">-</span></div>
-              <div class="config-row"><span class="config-key">ORCH</span><span class="config-val" id="orchUrl">-</span></div>
-              <div class="config-row"><span class="config-key">JAEGER</span><span class="config-val" id="jaegerUrl">-</span></div>
-              <div class="config-row"><span class="config-key">PROM</span><span class="config-val" id="promUrl">-</span></div>
-            </div>
-
-            <div class="live-box">
-              <div class="live-title">Live Telemetry Snapshot</div>
-              <div id="liveSnapshot">No live query yet.</div>
-            </div>
+            <div id="healthCards" class="health-cards"></div>
           </section>
 
-          <section class="panel result-panel">
-            <div class="panel-head">
-              <div class="panel-title-group">
-                <span class="panel-icon">&#9650;</span>
-                <h2 class="panel-title">Pipeline Result</h2>
-              </div>
-              <span id="pipelineState" class="state-pill muted">Waiting</span>
-            </div>
-
-            <div class="metric-band">
-              <div class="metric-box">
-                <span class="metric-label">Anomaly Score</span>
-                <strong id="anomalyScore" class="metric-value">-</strong>
-                <small id="anomalyThreshold" class="metric-sub">threshold: -</small>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">Decision</span>
-                <strong id="anomalyDecision" class="metric-value">-</strong>
-                <small id="anomalyModel" class="metric-sub">model: -</small>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">Top-1 Root Cause</span>
-                <strong id="top1Service" class="metric-value">-</strong>
-                <small id="top1Score" class="metric-sub">score: -</small>
-              </div>
-            </div>
-
-            <div class="bar-wrap">
-              <div class="bar-labels"><span>0</span><span>Anomaly Score</span><span>1</span></div>
-              <div class="bar-track"><div id="anomalyBar" class="bar-fill"></div></div>
-            </div>
-
-            <div class="two-col">
-              <div class="subpanel">
-                <h3 class="subpanel-title">Top-3 RCA Ranking</h3>
-                <ul id="topkList" class="ranking-list"></ul>
-              </div>
-              <div class="subpanel">
-                <h3 class="subpanel-title">Recovery Recommendation</h3>
-                <div id="recoveryCard" class="recovery-card">
-                  <p>Run an analysis to receive an action proposal.</p>
+          <div class="split-row">
+            <section class="panel control-panel">
+              <div class="panel-head">
+                <div class="panel-title-group">
+                  <span class="panel-icon">&#9881;</span>
+                  <h2 class="panel-title">Demo Controls</h2>
                 </div>
-                <div class="action-row">
-                  <button id="restartPodBtn" class="btn btn-action">Restart Pod</button>
-                  <button id="scaleServiceBtn" class="btn btn-action">Scale Service</button>
-                  <button id="alertOnlyBtn" class="btn btn-ghost-sm">Alert Only</button>
+                <span class="panel-note">Sample and live sources</span>
+              </div>
+
+              <label class="field">
+                <span class="field-label">System</span>
+                <select id="systemSelect"></select>
+              </label>
+
+              <label class="field">
+                <span class="field-label">Graph Sample</span>
+                <select id="sampleSelect"></select>
+              </label>
+
+              <label class="field">
+                <span class="field-label">Window Preset</span>
+                <select id="presetSelect">
+                  <option value="healthy">Healthy</option>
+                  <option value="suspicious">Suspicious</option>
+                </select>
+              </label>
+
+              <label class="check-row">
+                <input type="checkbox" id="forceRcaToggle" />
+                <span>Force RCA even when anomaly score is below threshold</span>
+              </label>
+
+              <div class="config-box">
+                <div class="config-row"><span class="config-key">ANOMALY</span><span class="config-val" id="anomalyUrl">-</span></div>
+                <div class="config-row"><span class="config-key">RCA</span><span class="config-val" id="rcaUrl">-</span></div>
+                <div class="config-row"><span class="config-key">ORCH</span><span class="config-val" id="orchUrl">-</span></div>
+                <div class="config-row"><span class="config-key">JAEGER</span><span class="config-val" id="jaegerUrl">-</span></div>
+                <div class="config-row"><span class="config-key">PROM</span><span class="config-val" id="promUrl">-</span></div>
+              </div>
+
+              <div class="live-box">
+                <div class="live-title">Live Telemetry Snapshot</div>
+                <div id="liveSnapshot">No live query yet.</div>
+              </div>
+            </section>
+
+            <section class="panel result-panel" id="resultSection">
+              <div class="panel-head">
+                <div class="panel-title-group">
+                  <span class="panel-icon">&#9650;</span>
+                  <h2 class="panel-title">Pipeline Result</h2>
                 </div>
-                <div id="recoveryLog" class="recovery-log"><span class="log-prompt">$</span> No recovery action executed yet.</div>
-                <div class="feedback-box">
-                  <div class="history-head">
-                    <span class="history-title">Incident Feedback</span>
-                    <span class="history-note">uses monitoring event</span>
+                <span id="pipelineState" class="state-pill muted">Waiting</span>
+              </div>
+
+              <div class="metric-band">
+                <div class="metric-box">
+                  <span class="metric-label">Anomaly Score</span>
+                  <strong id="anomalyScore" class="metric-value">-</strong>
+                  <small id="anomalyThreshold" class="metric-sub">threshold: -</small>
+                </div>
+                <div class="metric-box">
+                  <span class="metric-label">Decision</span>
+                  <strong id="anomalyDecision" class="metric-value">-</strong>
+                  <small id="anomalyModel" class="metric-sub">model: -</small>
+                </div>
+                <div class="metric-box">
+                  <span class="metric-label">Top-1 Root Cause</span>
+                  <strong id="top1Service" class="metric-value">-</strong>
+                  <small id="top1Score" class="metric-sub">score: -</small>
+                </div>
+              </div>
+
+              <div class="bar-wrap">
+                <div class="bar-labels"><span>0</span><span>Anomaly Score</span><span>1</span></div>
+                <div class="bar-track"><div id="anomalyBar" class="bar-fill"></div></div>
+              </div>
+
+              <div class="two-col">
+                <div class="subpanel">
+                  <h3 class="subpanel-title">Top-3 RCA Ranking</h3>
+                  <ul id="topkList" class="ranking-list"></ul>
+                </div>
+                <div class="subpanel">
+                  <h3 class="subpanel-title">Recovery Recommendation</h3>
+                  <div id="recoveryCard" class="recovery-card">
+                    <p>Run an analysis to receive an action proposal.</p>
                   </div>
                   <div class="action-row">
-                    <button id="acceptIncidentBtn" class="btn btn-action">Accept Incident</button>
-                    <button id="rejectIncidentBtn" class="btn btn-warn">Reject False Positive</button>
-                    <button id="unknownIncidentBtn" class="btn btn-ghost-sm">Mark Unknown</button>
+                    <button id="restartPodBtn" class="btn btn-action">Restart Pod</button>
+                    <button id="scaleServiceBtn" class="btn btn-action">Scale Service</button>
+                    <button id="alertOnlyBtn" class="btn btn-ghost-sm">Alert Only</button>
                   </div>
-                  <div id="feedbackLog" class="history-empty">Run Live Analyze to create an event.</div>
-                </div>
-                <div class="history-box">
-                  <div class="history-head">
-                    <span class="history-title">Log Validation</span>
-                    <span class="history-note">kubectl logs</span>
+                  <div id="recoveryLog" class="recovery-log"><span class="log-prompt">$</span> No recovery action executed yet.</div>
+                  <div class="feedback-box">
+                    <div class="history-head">
+                      <span class="history-title">Incident Feedback</span>
+                      <span class="history-note">uses monitoring event</span>
+                    </div>
+                    <div class="action-row">
+                      <button id="acceptIncidentBtn" class="btn btn-action">Accept Incident</button>
+                      <button id="rejectIncidentBtn" class="btn btn-warn">Reject False Positive</button>
+                      <button id="unknownIncidentBtn" class="btn btn-ghost-sm">Mark Unknown</button>
+                    </div>
+                    <div id="feedbackLog" class="history-empty">Run Live Analyze to create an event.</div>
                   </div>
-                  <div id="logValidationBox" class="log-validation-box">No log query yet.</div>
-                </div>
-                <div class="history-box">
-                  <div class="history-head">
-                    <span class="history-title">Recovery History</span>
-                    <span class="history-note">latest 20 actions</span>
+                  <div class="history-box">
+                    <div class="history-head">
+                      <span class="history-title">Log Validation</span>
+                      <span class="history-note">kubectl logs</span>
+                    </div>
+                    <div id="logValidationBox" class="log-validation-box">No log query yet.</div>
                   </div>
-                  <div id="recoveryHistoryList" class="history-list">
-                    <div class="history-empty">No recovery action recorded yet.</div>
+                  <div class="history-box">
+                    <div class="history-head">
+                      <span class="history-title">Recovery History</span>
+                      <span class="history-note">latest 20 actions</span>
+                    </div>
+                    <div id="recoveryHistoryList" class="history-list">
+                      <div class="history-empty">No recovery action recorded yet.</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          </div>
         </div>
 
-        <section class="panel metadata-panel">
+        <section class="panel metadata-panel view-panel hidden" data-view-panel="metadata">
           <div class="panel-head">
             <div class="panel-title-group">
               <span class="panel-icon">&#9675;</span>
@@ -196,6 +251,66 @@
             <span class="panel-note">Best current artifacts</span>
           </div>
           <pre id="metadataBox" class="json-box">Loading metadata...</pre>
+        </section>
+
+        <section class="panel access-panel view-panel hidden" data-view-panel="access-control">
+          <div class="panel-head">
+            <div class="panel-title-group">
+              <span class="panel-icon">&#128274;</span>
+              <h2 class="panel-title">Access Control</h2>
+            </div>
+            <span class="panel-note">Role visibility and user management</span>
+          </div>
+          <div class="access-grid">
+            <div class="access-card">
+              <div class="history-head">
+                <span class="history-title">Current Session</span>
+                <span id="accessRoleBadge" class="status-pill muted">guest</span>
+              </div>
+              <div id="accessSummaryBox" class="access-summary-box">Loading access context...</div>
+              <div id="accessPermissionList" class="permission-list"></div>
+            </div>
+
+            <div id="userAdminSection" class="access-card hidden">
+              <div class="history-head">
+                <span class="history-title">User Management</span>
+                <span id="userAdminState" class="history-note">Admin only</span>
+              </div>
+
+              <form id="createUserForm" class="user-form">
+                <label class="field">
+                  <span class="field-label">Username</span>
+                  <input id="createUserUsername" class="text-input" type="text" autocomplete="username" required />
+                </label>
+                <label class="field">
+                  <span class="field-label">Display Name</span>
+                  <input id="createUserDisplayName" class="text-input" type="text" autocomplete="name" />
+                </label>
+                <label class="field">
+                  <span class="field-label">Password</span>
+                  <input id="createUserPassword" class="text-input" type="password" autocomplete="new-password" required />
+                </label>
+                <label class="field">
+                  <span class="field-label">Role</span>
+                  <select id="createUserRole">
+                    <option value="operator">operator</option>
+                    <option value="viewer">viewer</option>
+                    <option value="ml_engineer">ml_engineer</option>
+                    <option value="admin">admin</option>
+                  </select>
+                </label>
+                <label class="check-row compact-check">
+                  <input id="createUserActive" type="checkbox" checked />
+                  <span>Create as active user</span>
+                </label>
+                <button id="createUserSubmitBtn" class="btn btn-primary" type="submit">Create User</button>
+              </form>
+
+              <div id="userList" class="user-list">
+                <div class="history-empty">No users loaded yet.</div>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     </div>

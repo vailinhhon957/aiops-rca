@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import json
 import os
+import sqlite3
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -17,17 +18,41 @@ from aiops_framework.inference.anomaly_service.schemas import WindowPredictRespo
 from aiops_framework.inference.rca_service.schemas import GraphPredictResponse, RankedNode
 from aiops_framework.registry.system_catalog import get_system, list_systems
 
+from .auth import (
+    AUTH_ENABLED,
+    AuthContext,
+    ROLE_PERMISSIONS,
+    SESSION_TTL_HOURS,
+    bootstrap_admin_if_configured,
+    clear_session_cookie,
+    get_auth_context,
+    hash_password,
+    make_session_expiry,
+    require_permission,
+    require_valid_role,
+    set_session_cookie,
+    verify_password,
+)
 from .demo_data import DEFAULT_GRAPH_ROOT, WINDOW_PRESETS, build_demo_pipeline_payload, list_graph_samples
 from .live_data import DEFAULT_JAEGER_URL, DEFAULT_PROMETHEUS_URL, DEFAULT_SOURCE_SERVICE, DEFAULT_SYSTEM_ID, collect_live_inputs
 from .logs import fetch_recent_logs
 from .policy import recommend_actions
 from .store import (
+    count_users,
     create_monitoring_event,
+    create_session,
+    create_user,
     get_monitoring_event,
+    get_user,
     init_store,
     list_audit_logs,
     list_monitoring_events,
+    list_users,
+    revoke_session,
     save_feedback,
+    set_user_active,
+    update_user_password,
+    update_user_role,
     write_audit_log,
 )
 
@@ -69,6 +94,42 @@ class FeedbackRequest(BaseModel):
     context: dict[str, Any] = {}
 
 
+class BootstrapAdminRequest(BaseModel):
+    username: str
+    password: str
+    display_name: str = "Administrator"
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class CreateUserRequest(BaseModel):
+    username: str
+    password: str
+    role: str
+    display_name: str = ""
+    is_active: bool = True
+
+
+class UpdateUserRoleRequest(BaseModel):
+    role: str
+
+
+class SetUserActiveRequest(BaseModel):
+    is_active: bool
+
+
+class UpdateUserPasswordRequest(BaseModel):
+    password: str
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
 RECOVERY_HISTORY: list[dict[str, Any]] = []
 
 
@@ -94,9 +155,34 @@ def _read_index_html() -> str:
     return html.replace("__DASHBOARD_CONFIG__", json.dumps(config, ensure_ascii=False))
 
 
+def _public_user_payload(user: dict[str, Any] | None) -> dict[str, Any] | None:
+    if user is None:
+        return None
+    return {
+        "username": user.get("username"),
+        "role": user.get("role"),
+        "display_name": user.get("display_name", ""),
+        "is_active": bool(user.get("is_active", False)),
+        "created_at": user.get("created_at"),
+        "updated_at": user.get("updated_at"),
+        "last_login_at": user.get("last_login_at"),
+    }
+
+
+def _auth_payload(user: dict[str, Any] | None, *, username: str, role: str, permissions: set[str] | None = None) -> dict[str, Any]:
+    effective_permissions = permissions if permissions is not None else ROLE_PERMISSIONS.get(role, set())
+    return {
+        "authenticated": True,
+        "auth_enabled": AUTH_ENABLED,
+        "user": _public_user_payload(user) or {"username": username, "role": role},
+        "permissions": sorted(effective_permissions),
+    }
+
+
 @app.on_event("startup")
 def startup() -> None:
     init_store()
+    bootstrap_admin_if_configured()
 
 
 def _best_effort_get(url: str) -> dict[str, Any]:
@@ -227,6 +313,231 @@ def index() -> str:
     return _read_index_html()
 
 
+@app.get("/api/auth/config")
+def auth_config() -> dict[str, Any]:
+    return {
+        "enabled": AUTH_ENABLED,
+        "bootstrap_required": count_users() == 0,
+        "session_ttl_hours": SESSION_TTL_HOURS,
+    }
+
+
+@app.post("/api/auth/bootstrap")
+def bootstrap_admin(payload: BootstrapAdminRequest) -> dict[str, Any]:
+    if not AUTH_ENABLED:
+        raise HTTPException(status_code=400, detail="Authentication is disabled")
+    if count_users() > 0:
+        raise HTTPException(status_code=409, detail="Bootstrap is only allowed when no users exist")
+
+    try:
+        password_hash = hash_password(payload.password)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    user = create_user(
+        username=payload.username,
+        password_hash=password_hash,
+        role="admin",
+        display_name=payload.display_name,
+        is_active=True,
+    )
+    write_audit_log(
+        action="auth.bootstrap_admin",
+        target_type="user",
+        target_id=user["username"],
+        actor="bootstrap",
+        payload={"display_name": user["display_name"]},
+    )
+    return {"status": "created", "user": user}
+
+
+@app.post("/api/auth/login")
+def login(payload: LoginRequest, request: Request) -> JSONResponse:
+    if not AUTH_ENABLED:
+        raise HTTPException(status_code=400, detail="Authentication is disabled")
+
+    username = payload.username.strip()
+    user = get_user(username, include_password_hash=True)
+    valid = bool(user) and bool(user.get("is_active")) and verify_password(payload.password, str(user.get("password_hash", "")))
+    if not valid:
+        write_audit_log(
+            action="auth.login_failed",
+            target_type="user",
+            target_id=username or "unknown",
+            actor=username or "anonymous",
+            payload={"path": str(request.url.path)},
+        )
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    session_id = create_session(
+        username=username,
+        expires_at=make_session_expiry(),
+        user_agent=request.headers.get("user-agent", ""),
+        client_host=request.client.host if request.client else "",
+    )
+    response = JSONResponse(
+        {
+            "status": "ok",
+            **_auth_payload(
+                user,
+                username=username,
+                role=str(user.get("role", "viewer")),
+            ),
+        }
+    )
+    set_session_cookie(response, session_id)
+    write_audit_log(
+        action="auth.login_success",
+        target_type="user",
+        target_id=username,
+        actor=username,
+        payload={"session_id": session_id},
+    )
+    return response
+
+
+@app.post("/api/auth/logout")
+def logout(request: Request, auth: AuthContext = Depends(get_auth_context)) -> JSONResponse:
+    response = JSONResponse({"status": "ok"})
+    if auth.session_id:
+        revoke_session(auth.session_id)
+        write_audit_log(
+            action="auth.logout",
+            target_type="session",
+            target_id=auth.session_id,
+            actor=auth.username,
+            payload={},
+        )
+    clear_session_cookie(response)
+    return response
+
+
+@app.get("/api/auth/me")
+def auth_me(auth: AuthContext = Depends(get_auth_context)) -> dict[str, Any]:
+    user = get_user(auth.username, include_password_hash=False)
+    return _auth_payload(user, username=auth.username, role=auth.role, permissions=auth.permissions)
+
+
+@app.post("/api/auth/change-password")
+def change_password(payload: ChangePasswordRequest, auth: AuthContext = Depends(get_auth_context)) -> dict[str, Any]:
+    user = get_user(auth.username, include_password_hash=True)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not verify_password(payload.current_password, str(user.get("password_hash", ""))):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+    try:
+        password_hash = hash_password(payload.new_password)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    update_user_password(auth.username, password_hash)
+    write_audit_log(
+        action="auth.change_password",
+        target_type="user",
+        target_id=auth.username,
+        actor=auth.username,
+        payload={},
+    )
+    return {"status": "ok"}
+
+
+@app.get("/api/users")
+def users(auth: AuthContext = Depends(require_permission("user_manage"))) -> dict[str, Any]:
+    return {"items": list_users(), "actor": auth.username}
+
+
+@app.post("/api/users")
+def create_dashboard_user(
+    payload: CreateUserRequest,
+    auth: AuthContext = Depends(require_permission("user_manage")),
+) -> dict[str, Any]:
+    role = require_valid_role(payload.role)
+    try:
+        password_hash = hash_password(payload.password)
+        user = create_user(
+            username=payload.username,
+            password_hash=password_hash,
+            role=role,
+            display_name=payload.display_name,
+            is_active=payload.is_active,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except sqlite3.IntegrityError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    write_audit_log(
+        action="user.create",
+        target_type="user",
+        target_id=user["username"],
+        actor=auth.username,
+        payload={"role": user["role"], "is_active": user["is_active"]},
+    )
+    return {"status": "created", "user": user}
+
+
+@app.patch("/api/users/{username}/role")
+def patch_user_role(
+    username: str,
+    payload: UpdateUserRoleRequest,
+    auth: AuthContext = Depends(require_permission("user_manage")),
+) -> dict[str, Any]:
+    role = require_valid_role(payload.role)
+    try:
+        user = update_user_role(username, role)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    write_audit_log(
+        action="user.update_role",
+        target_type="user",
+        target_id=username,
+        actor=auth.username,
+        payload={"role": role},
+    )
+    return {"status": "ok", "user": user}
+
+
+@app.patch("/api/users/{username}/active")
+def patch_user_active(
+    username: str,
+    payload: SetUserActiveRequest,
+    auth: AuthContext = Depends(require_permission("user_manage")),
+) -> dict[str, Any]:
+    try:
+        user = set_user_active(username, payload.is_active)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    write_audit_log(
+        action="user.set_active",
+        target_type="user",
+        target_id=username,
+        actor=auth.username,
+        payload={"is_active": payload.is_active},
+    )
+    return {"status": "ok", "user": user}
+
+
+@app.patch("/api/users/{username}/password")
+def patch_user_password(
+    username: str,
+    payload: UpdateUserPasswordRequest,
+    auth: AuthContext = Depends(require_permission("user_manage")),
+) -> dict[str, Any]:
+    try:
+        password_hash = hash_password(payload.password)
+        update_user_password(username, password_hash)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    write_audit_log(
+        action="user.update_password",
+        target_type="user",
+        target_id=username,
+        actor=auth.username,
+        payload={},
+    )
+    return {"status": "ok"}
+
+
 @app.get("/api/health")
 def dashboard_health() -> dict[str, Any]:
     return {
@@ -235,6 +546,7 @@ def dashboard_health() -> dict[str, Any]:
             "graph_root": str(DEFAULT_GRAPH_ROOT),
             "recovery_mode": RECOVERY_MODE,
             "recovery_namespace": RECOVERY_NAMESPACE,
+            "auth_enabled": AUTH_ENABLED,
         },
         "anomaly": _best_effort_get(f"{ANOMALY_BASE_URL}/health"),
         "rca": _best_effort_get(f"{RCA_BASE_URL}/health"),
@@ -243,7 +555,7 @@ def dashboard_health() -> dict[str, Any]:
 
 
 @app.get("/api/metadata")
-def dashboard_metadata() -> dict[str, Any]:
+def dashboard_metadata(auth: AuthContext = Depends(require_permission("read"))) -> dict[str, Any]:
     return {
         "window_presets": list(WINDOW_PRESETS.keys()),
         "graph_root": str(DEFAULT_GRAPH_ROOT),
@@ -260,6 +572,10 @@ def dashboard_metadata() -> dict[str, Any]:
         },
         "samples": list_graph_samples(),
         "systems": list_systems(),
+        "auth": {
+            "enabled": AUTH_ENABLED,
+            "bootstrap_required": count_users() == 0,
+        },
         "anomaly": _best_effort_get(f"{ANOMALY_BASE_URL}/metadata"),
         "rca": _best_effort_get(f"{RCA_BASE_URL}/metadata"),
         "orchestrator": _best_effort_get(f"{ORCHESTRATOR_BASE_URL}/metadata"),
@@ -267,12 +583,12 @@ def dashboard_metadata() -> dict[str, Any]:
 
 
 @app.get("/api/systems")
-def systems() -> dict[str, Any]:
+def systems(auth: AuthContext = Depends(require_permission("read"))) -> dict[str, Any]:
     return {"items": list_systems(), "default_system_id": DEFAULT_SYSTEM_ID}
 
 
 @app.get("/api/systems/{system_id}")
-def system_detail(system_id: str) -> dict[str, Any]:
+def system_detail(system_id: str, auth: AuthContext = Depends(require_permission("read"))) -> dict[str, Any]:
     try:
         return get_system(system_id)
     except Exception as exc:
@@ -280,17 +596,24 @@ def system_detail(system_id: str) -> dict[str, Any]:
 
 
 @app.get("/api/samples")
-def samples() -> dict[str, Any]:
+def samples(auth: AuthContext = Depends(require_permission("read"))) -> dict[str, Any]:
     return {"items": list_graph_samples(), "graph_root": str(DEFAULT_GRAPH_ROOT)}
 
 
 @app.get("/api/monitoring-events")
-def monitoring_events(limit: int = 50, system_id: str | None = None) -> dict[str, Any]:
+def monitoring_events(
+    limit: int = 50,
+    system_id: str | None = None,
+    auth: AuthContext = Depends(require_permission("read")),
+) -> dict[str, Any]:
     return {"items": list_monitoring_events(limit=limit, system_id=system_id)}
 
 
 @app.get("/api/monitoring-events/{event_id}")
-def monitoring_event_detail(event_id: int) -> dict[str, Any]:
+def monitoring_event_detail(
+    event_id: int,
+    auth: AuthContext = Depends(require_permission("read")),
+) -> dict[str, Any]:
     event = get_monitoring_event(event_id)
     if event is None:
         raise HTTPException(status_code=404, detail=f"Monitoring event not found: {event_id}")
@@ -298,7 +621,11 @@ def monitoring_event_detail(event_id: int) -> dict[str, Any]:
 
 
 @app.post("/api/monitoring-events/{event_id}/feedback")
-def record_feedback(event_id: int, payload: FeedbackRequest) -> dict[str, Any]:
+def record_feedback(
+    event_id: int,
+    payload: FeedbackRequest,
+    auth: AuthContext = Depends(require_permission("feedback_write")),
+) -> dict[str, Any]:
     allowed = {"accepted_incident", "rejected_false_positive", "unknown"}
     if payload.feedback not in allowed:
         raise HTTPException(status_code=400, detail=f"Unsupported feedback: {payload.feedback}")
@@ -306,7 +633,7 @@ def record_feedback(event_id: int, payload: FeedbackRequest) -> dict[str, Any]:
         return save_feedback(
             event_id=event_id,
             feedback=payload.feedback,
-            actor=payload.actor,
+            actor=auth.username,
             notes=payload.notes,
             payload=payload.context,
         )
@@ -315,12 +642,18 @@ def record_feedback(event_id: int, payload: FeedbackRequest) -> dict[str, Any]:
 
 
 @app.get("/api/audit-logs")
-def audit_logs(limit: int = 50) -> dict[str, Any]:
+def audit_logs(limit: int = 50, auth: AuthContext = Depends(require_permission("audit_view"))) -> dict[str, Any]:
     return {"items": list_audit_logs(limit=limit)}
 
 
 @app.get("/api/logs/recent")
-def recent_logs(system_id: str = DEFAULT_SYSTEM_ID, service_name: str = "", tail: int = 200, since: str = "10m") -> dict[str, Any]:
+def recent_logs(
+    system_id: str = DEFAULT_SYSTEM_ID,
+    service_name: str = "",
+    tail: int = 200,
+    since: str = "10m",
+    auth: AuthContext = Depends(require_permission("read")),
+) -> dict[str, Any]:
     try:
         return fetch_recent_logs(system_id=system_id, service_name=service_name, tail=tail, since=since)
     except subprocess.CalledProcessError as exc:
@@ -332,12 +665,15 @@ def recent_logs(system_id: str = DEFAULT_SYSTEM_ID, service_name: str = "", tail
 
 
 @app.get("/api/recovery/history")
-def recovery_history() -> dict[str, Any]:
+def recovery_history(auth: AuthContext = Depends(require_permission("read"))) -> dict[str, Any]:
     return {"items": list(reversed(RECOVERY_HISTORY[-20:]))}
 
 
 @app.post("/api/recovery/execute")
-def execute_recovery(payload: RecoveryActionRequest) -> dict[str, Any]:
+def execute_recovery(
+    payload: RecoveryActionRequest,
+    auth: AuthContext = Depends(require_permission("recovery_execute")),
+) -> dict[str, Any]:
     if payload.action not in {"restart_pod", "scale_service", "alert_only"}:
         raise HTTPException(status_code=400, detail=f"Unsupported recovery action: {payload.action}")
 
@@ -367,6 +703,7 @@ def execute_recovery(payload: RecoveryActionRequest) -> dict[str, Any]:
         "service_name": service_name,
         "severity": payload.severity or "unknown",
         "source": payload.source,
+        "actor": auth.username,
         "notes": action_result["notes"],
         "context": payload.context,
     }
@@ -375,14 +712,17 @@ def execute_recovery(payload: RecoveryActionRequest) -> dict[str, Any]:
         action=f"recovery.{payload.action}",
         target_type="service",
         target_id=service_name,
-        actor=payload.source,
+        actor=auth.username,
         payload=event,
     )
     return event
 
 
 @app.post("/api/live/analyze")
-def live_analyze(payload: LiveAnalyzeRequest) -> JSONResponse:
+def live_analyze(
+    payload: LiveAnalyzeRequest,
+    auth: AuthContext = Depends(require_permission("live_analyze")),
+) -> JSONResponse:
     try:
         live_inputs = collect_live_inputs(
             system_id=payload.system_id,
@@ -427,11 +767,21 @@ def live_analyze(payload: LiveAnalyzeRequest) -> JSONResponse:
     event = create_monitoring_event(result)
     result["monitoring_event"] = event
     result["event_id"] = event["id"]
+    write_audit_log(
+        action="monitoring.live_analyze",
+        target_type="monitoring_event",
+        target_id=str(event["id"]),
+        actor=auth.username,
+        payload={"system_id": payload.system_id, "source_service": payload.source_service},
+    )
     return JSONResponse(result)
 
 
 @app.post("/api/demo/analyze")
-def demo_analyze(payload: DemoAnalyzeRequest) -> JSONResponse:
+def demo_analyze(
+    payload: DemoAnalyzeRequest,
+    auth: AuthContext = Depends(require_permission("read")),
+) -> JSONResponse:
     if payload.preset not in WINDOW_PRESETS:
         raise HTTPException(status_code=400, detail=f"Unknown preset: {payload.preset}")
 
