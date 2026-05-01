@@ -76,6 +76,7 @@ class DemoAnalyzeRequest(BaseModel):
     sample_name: str
     preset: str = "healthy"
     run_rca_on_any_input: bool = False
+    model_key: str = os.environ.get("AIOPS_DASHBOARD_DEFAULT_RCA_MODEL_KEY", "rf_ml_ranker")
 
 
 class RecoveryActionRequest(BaseModel):
@@ -141,6 +142,7 @@ class LiveAnalyzeRequest(BaseModel):
     lookback_minutes: int = 1
     query_limit: int = 150
     run_rca_on_any_input: bool = False
+    model_key: str = os.environ.get("AIOPS_DASHBOARD_DEFAULT_RCA_MODEL_KEY", "rf_ml_ranker")
 
 
 def _read_index_html() -> str:
@@ -151,6 +153,7 @@ def _read_index_html() -> str:
         "orchestratorBaseUrl": ORCHESTRATOR_BASE_URL,
         "jaegerUrl": DEFAULT_JAEGER_URL,
         "prometheusUrl": DEFAULT_PROMETHEUS_URL,
+        "defaultModelKey": os.environ.get("AIOPS_DASHBOARD_DEFAULT_RCA_MODEL_KEY", "rf_ml_ranker"),
     }
     return html.replace("__DASHBOARD_CONFIG__", json.dumps(config, ensure_ascii=False))
 
@@ -296,6 +299,7 @@ def _run_pipeline_locally(pipeline_payload: dict[str, Any]) -> dict[str, Any]:
         top1=RankedNode(**rca_raw["top1"]),
         topk=[RankedNode(**item) for item in rca_raw.get("topk", [])],
         graph_id=rca_raw.get("graph_id"),
+        model_key=str(rca_raw.get("model_key") or pipeline_payload["graph"].get("model_key") or ""),
         model_name=rca_raw["model_name"],
         model_type=rca_raw["model_type"],
         metadata=rca_raw.get("metadata", {}),
@@ -735,11 +739,16 @@ def live_analyze(
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Live collection failed: {exc}") from exc
 
+    if live_inputs.get("graph") is not None:
+        live_inputs["graph"]["model_key"] = payload.model_key
+
     pipeline_payload = {
         "window": live_inputs["window"],
         "graph": live_inputs["graph"],
         "run_rca_on_any_input": payload.run_rca_on_any_input,
+        "model_key": payload.model_key,
     }
+
     try:
         result = post_json(f"{ORCHESTRATOR_BASE_URL}/analyze/pipeline", pipeline_payload)
     except Exception as exc:
@@ -763,6 +772,7 @@ def live_analyze(
         "lookback_minutes": payload.lookback_minutes,
         "jaeger_url": payload.jaeger_url,
         "prometheus_url": payload.prometheus_url,
+        "model_key": payload.model_key,
     }
     event = create_monitoring_event(result)
     result["monitoring_event"] = event
@@ -791,6 +801,9 @@ def demo_analyze(
             preset=payload.preset,
             run_rca_on_any_input=payload.run_rca_on_any_input,
         )
+        if pipeline_payload.get("graph") is not None:
+            pipeline_payload["graph"]["model_key"] = payload.model_key
+        pipeline_payload["model_key"] = payload.model_key
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
@@ -814,5 +827,6 @@ def demo_analyze(
         "preset": payload.preset,
         "sample_name": payload.sample_name,
         "run_rca_on_any_input": payload.run_rca_on_any_input,
+        "model_key": payload.model_key,
     }
     return JSONResponse(result)

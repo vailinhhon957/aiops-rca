@@ -62,26 +62,29 @@ class SimpleGraphAttention(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.norm1 = nn.LayerNorm(hidden_dim)
         self.norm2 = nn.LayerNorm(hidden_dim)
-        self.ff = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
+        self.ffn = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim * 2),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, hidden_dim),
+            nn.Linear(hidden_dim * 2, hidden_dim),
         )
+        self.scale = hidden_dim ** 0.5
 
     def forward(self, x: torch.Tensor, adj: torch.Tensor) -> torch.Tensor:
         h = self.input_proj(x)
+        h = F.relu(h)
+        h = self.dropout(h)
         q = self.q_proj(h)
         k = self.k_proj(h)
         v = self.v_proj(h)
 
-        scores = torch.matmul(q, k.transpose(0, 1)) / math.sqrt(q.size(-1))
+        scores = torch.matmul(q, k.transpose(0, 1)) / self.scale
         scores = scores.masked_fill(~adj, float("-inf"))
         attn = torch.softmax(scores, dim=-1)
         attn = self.dropout(attn)
         h2 = torch.matmul(attn, v)
         h = self.norm1(h + self.out_proj(h2))
-        h = self.norm2(h + self.ff(h))
+        h = self.norm2(h + self.ffn(h))
         logits = self.score_head(h).squeeze(-1)
         return logits
 
