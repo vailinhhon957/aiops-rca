@@ -21,8 +21,9 @@ def health() -> dict[str, object]:
         "status": "ok",
         "artifact_dir": str(ARTIFACTS.artifact_dir),
         "model_name": ARTIFACTS.inference_config.get("model_name", ARTIFACTS.artifact_dir.name),
-        "model_type": ARTIFACTS.inference_config.get("model_type", "simple_graph_attention"),
+        "model_type": ARTIFACTS.model_type,
         "device": str(ARTIFACTS.device),
+        "feature_count": len(ARTIFACTS.feature_cols),
     }
 
 
@@ -32,6 +33,9 @@ def metadata() -> dict[str, object]:
         "artifact_dir": str(ARTIFACTS.artifact_dir),
         "model_config": ARTIFACTS.model_config,
         "inference_config": ARTIFACTS.inference_config,
+        "model_type": ARTIFACTS.model_type,
+        "feature_count": len(ARTIFACTS.feature_cols),
+        "feature_cols": ARTIFACTS.feature_cols,
     }
 
 
