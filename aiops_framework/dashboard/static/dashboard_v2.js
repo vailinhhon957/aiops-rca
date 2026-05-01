@@ -1080,8 +1080,13 @@ async function initializeApp() {
 refreshHealthBtn.addEventListener("click", async () => {
   setPipelineState("Refreshing health", "muted");
   try {
-    const health = await fetchJson("/api/health");
+    const [health, metadata] = await Promise.all([
+      fetchJson("/api/health"),
+      fetchJson("/api/metadata"),
+    ]);
     renderHealth(health);
+    renderMetadata(metadata);
+    renderRcaModels(metadata.rca || {});
     setPipelineState("Ready", "ok");
   } catch (err) {
     if (err.code !== "AUTH_REQUIRED") {

@@ -147,6 +147,7 @@ class LiveAnalyzeRequest(BaseModel):
 
 def _read_index_html() -> str:
     html = (TEMPLATES_DIR / "index_v2.html").read_text(encoding="utf-8")
+    static_version = os.environ.get("AIOPS_DASHBOARD_STATIC_VERSION", "20260501-multimodel")
     config = {
         "anomalyBaseUrl": ANOMALY_BASE_URL,
         "rcaBaseUrl": RCA_BASE_URL,
@@ -155,7 +156,10 @@ def _read_index_html() -> str:
         "prometheusUrl": DEFAULT_PROMETHEUS_URL,
         "defaultModelKey": os.environ.get("AIOPS_DASHBOARD_DEFAULT_RCA_MODEL_KEY", "rf_ml_ranker"),
     }
-    return html.replace("__DASHBOARD_CONFIG__", json.dumps(config, ensure_ascii=False))
+    return (
+        html.replace("__DASHBOARD_CONFIG__", json.dumps(config, ensure_ascii=False))
+        .replace("__STATIC_VERSION__", static_version)
+    )
 
 
 def _public_user_payload(user: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -309,6 +313,46 @@ def _run_pipeline_locally(pipeline_payload: dict[str, Any]) -> dict[str, Any]:
         "rca": rca_result,
         "pipeline_state": "anomaly_then_rca",
         "metadata": {"reason": "RCA triggered after anomaly detection", "execution_mode": "dashboard_fallback"},
+    }
+
+
+def _run_live_rca_only(graph_payload: dict[str, Any] | None, *, model_key: str | None = None) -> dict[str, Any]:
+    if graph_payload is None:
+        raise ValueError("Live RCA-only fallback requires a graph payload.")
+
+    rca_request = dict(graph_payload)
+    if model_key and not rca_request.get("model_key"):
+        rca_request["model_key"] = model_key
+
+    rca_raw = post_json(f"{RCA_BASE_URL}/predict/graph", rca_request)
+    rca_result = GraphPredictResponse(
+        top1=RankedNode(**rca_raw["top1"]),
+        topk=[RankedNode(**item) for item in rca_raw.get("topk", [])],
+        graph_id=rca_raw.get("graph_id"),
+        model_key=str(rca_raw.get("model_key") or rca_request.get("model_key") or ""),
+        model_name=rca_raw["model_name"],
+        model_type=rca_raw["model_type"],
+        metadata=rca_raw.get("metadata", {}),
+    ).model_dump()
+
+    anomaly_result = WindowPredictResponse(
+        anomaly_score=1.0,
+        threshold=0.0,
+        is_anomaly=True,
+        model_name="live_rca_only_fallback",
+        model_kind="fallback",
+        optimize_for="rca_only",
+        metadata={"reason": "Anomaly/orchestrator unavailable; RCA executed directly from live graph."},
+    ).model_dump()
+
+    return {
+        "anomaly": anomaly_result,
+        "rca": rca_result,
+        "pipeline_state": "live_rca_only",
+        "metadata": {
+            "reason": "Executed live RCA directly because anomaly/orchestrator services were unavailable.",
+            "execution_mode": "dashboard_live_rca_only_fallback",
+        },
     }
 
 
@@ -759,7 +803,18 @@ def live_analyze(
                 "orchestrator_error": str(exc),
             }
         except Exception as fallback_exc:
-            raise HTTPException(status_code=502, detail=f"{exc} | Fallback failed: {fallback_exc}") from fallback_exc
+            try:
+                result = _run_live_rca_only(live_inputs.get("graph"), model_key=payload.model_key)
+                result["metadata"] = {
+                    **result.get("metadata", {}),
+                    "orchestrator_error": str(exc),
+                    "fallback_error": str(fallback_exc),
+                }
+            except Exception as rca_only_exc:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"{exc} | Fallback failed: {fallback_exc} | RCA-only fallback failed: {rca_only_exc}",
+                ) from rca_only_exc
 
     recommendation = recommend_actions(result.get("anomaly", {}), result.get("rca"))
     result["recommendation"] = recommendation
